@@ -34,7 +34,7 @@ class MetadataValidator {
                 return;
             }
             // type String
-            if (typeof this.hruid != "string") {
+            if (typeof this.uuid != "string") {
                 return "- The uuid needs to be of type string. \n";
             }
         },
@@ -61,6 +61,7 @@ class MetadataValidator {
         version() {
             // type Number
             if (this.version) {
+                console.log(this.version)
                 if (typeof this.version != "number") {
                     return "- The version needs to be of type number. \n";
                 }
@@ -133,7 +134,7 @@ class MetadataValidator {
                         err += "    * '" + this.keywords[i] + "' is not of type string. \n";
                     }
                 }
-                if (err) {
+                if (err.length != 0) {
                     err = ["- The keywords parameter needs to be an array of strings: \n", ...err];
                     return err;
                 }
@@ -164,7 +165,7 @@ class MetadataValidator {
                         }
                     }
                 }
-                if (err) {
+                if (err.length != 0) {
                     err = ["- The source and id of the educational goals need to be of type string: \n", ...err];
                     return err;
                 }
@@ -241,7 +242,7 @@ class MetadataValidator {
                         err.push("    * '" + this.target_ages[i] + "' is not between 0 and 150. \n");
                     }
                 }
-                if (err) {
+                if (err.length != 0) {
                     err = ["- The target_ages parameter needs to be an array of numbers between 0 and 150: \n", ...err];
                     return err;
                 }
@@ -297,6 +298,11 @@ class MetadataValidator {
         }
     }
 
+    /**
+     * Validates the metadata
+     * @returns [object, boolean] - the object is the possibly updated metadata, 
+     * and the boolean indicates if the validation was succesfull
+     */
     validate() {
         let errors = [];
         Object.values(this.validators).map(value => {
@@ -312,10 +318,9 @@ class MetadataValidator {
             }
         })
 
+        // If there are errors, log them as warning and these will be put in user.log (ugly, I know)
         if (errors && errors.length > 0) {
-            //TODO: do something with errors
             logger.warn("\u2193\u2193\u2193 [Metadata errors] \u2193\u2193\u2193 \n");
-            console.log(typeof errors)
             errors.forEach(e => {
                 logger.warn(e);
             });
