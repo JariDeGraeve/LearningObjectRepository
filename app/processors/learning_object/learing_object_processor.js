@@ -15,7 +15,6 @@ class LearningObjectProcessor extends Processor {
      */
     render(learningObjectId, args = {}) {
         //TODO: Get original learning object data and metadata from the database and pass to the processingproxy with the correct content type.
-        console.log("render leerobject")
         return this.processingProxy.render("text/plain", "This will be a learningObject");
     }
 }

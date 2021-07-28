@@ -10,6 +10,7 @@ import mkdirp from "mkdirp"
 import ProcessingProxy from "../../processors/processing_proxy.js"
 import { ProcessorContentType } from "../../processors/content_type.js"
 import yaml from "js-yaml"
+import MetadataValidator from "./metadata_validator.js"
 
 
 let logger = Logger.getLogger()
@@ -216,7 +217,13 @@ learningObjectController.createLearningObject = async (req, res) => {
         let [metadata, htmlFile, htmlString] = learningObjectController.extractMetadata(req.files);
 
         // Validate metadata
-        // TODO validate metadata
+        let val = new MetadataValidator(metadata);
+        let valid;
+        [metadata, valid] = val.validate();
+        console.log(metadata);
+        if (!valid) {
+            throw "The metadata is not correctly formatted."
+        }
 
         // Create learning object
         const learningObject = new LearningObject(metadata);
