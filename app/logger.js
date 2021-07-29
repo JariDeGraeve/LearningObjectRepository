@@ -19,7 +19,6 @@ class Logger {
                 format: winston.format.json(),
                 transports: [
                     new winston.transports.File({ filename: 'error.log', level: 'error' }),
-                    new winston.transports.File({ filename: 'user.log', level: 'warn' }),
                     new winston.transports.File({ filename: 'combined.log' }),
                 ],
             });

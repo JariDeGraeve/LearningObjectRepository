@@ -11,6 +11,7 @@ import ProcessingProxy from "../../processors/processing_proxy.js"
 import { ProcessorContentType } from "../../processors/content_type.js"
 import yaml from "js-yaml"
 import MetadataValidator from "./metadata_validator.js"
+import UserLogger from '../../utils/user_logger.js'
 
 
 let logger = Logger.getLogger()
@@ -256,7 +257,7 @@ learningObjectController.createLearningObject = async (req, res) => {
         [metadata, valid] = val.validate();
 
         if (!valid) {
-            throw "The metadata is not correctly formatted."
+            throw "The metadata is not correctly formatted. See user.log for more info."
         }
         // Create learning object
         const learningObject = new LearningObject(metadata);
@@ -284,6 +285,7 @@ learningObjectController.createLearningObject = async (req, res) => {
         if (req.files.length <= 0) {
             return res.send(`You must select at least 1 file.`);
         }
+        UserLogger.info("The learning-object with hruid " + learningObject.hruid + " was created correctly with id " + id);
         let redirectpath = path.join("/", process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, htmlFile);
         return res.redirect(redirectpath);
         //return res.sendfile(indexfile_html_full);

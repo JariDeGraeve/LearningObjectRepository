@@ -1,8 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import Logger from "../../logger.js"
-
-let logger = Logger.getLogger()
-
+import UserLogger from '../../utils/user_logger.js'
 
 class MetadataValidator {
 
@@ -35,18 +33,18 @@ class MetadataValidator {
             }
             // type String
             if (typeof this.uuid != "string") {
-                return "- The uuid needs to be of type string. ";
+                return "- The uuid needs to be of type string.\n";
             }
         },
 
         hruid() {
             // required
             if (this.hruid == undefined) {
-                return "- A parameter hruid is required. "
+                return "- A parameter hruid is required.\n"
             }
             // type String
             if (typeof this.hruid != "string") {
-                return "- The hruid needs to be of type string. ";
+                return "- The hruid needs to be of type string.\n";
             }
             // TODO: unique
             // if (this.hruid isnot unique) {
@@ -62,7 +60,7 @@ class MetadataValidator {
             // type Number
             if (this.version != undefined) {
                 if (typeof this.version != "number") {
-                    return "- The version needs to be of type number. ";
+                    return "- The version needs to be of type number.\n";
                 }
             }
         },
@@ -70,18 +68,18 @@ class MetadataValidator {
         language() {
             // required
             if (this.language == undefined) {
-                return "- A parameter language is required. "
+                return "- A parameter language is required.\n"
             }
 
             // type String
             if (typeof this.language != "string") {
-                return "- The language needs to be of type string. ";
+                return "- The language needs to be of type string.\n";
             }
 
             // existing lang
             let languages = ["aa", "ab", "af", "ak", "sq", "am", "ar", "an", "hy", "as", "av", "ae", "ay", "az", "ba", "bm", "eu", "be", "bn", "bh", "bi", "bs", "br", "bg", "my", "ca", "ch", "ce", "zh", "cu", "cv", "kw", "co", "cr", "cs", "da", "dv", "nl", "dz", "en", "eo", "et", "ee", "fo", "fj", "fi", "fr", "fy", "ff", "ka", "de", "gd", "ga", "gl", "gv", "el", "gn", "gu", "ht", "ha", "he", "hz", "hi", "ho", "hr", "hu", "ig", "is", "io", "ii", "iu", "ie", "ia", "id", "ik", "it", "jv", "ja", "kl", "kn", "ks", "kr", "kk", "km", "ki", "rw", "ky", "kv", "kg", "ko", "kj", "ku", "lo", "la", "lv", "li", "ln", "lt", "lb", "lu", "lg", "mk", "mh", "ml", "mi", "mr", "ms", "mg", "mt", "mn", "na", "nv", "nr", "nd", "ng", "ne", "nn", "nb", "no", "ny", "oc", "oj", "or", "om", "os", "pa", "fa", "pi", "pl", "pt", "ps", "qu", "rm", "ro", "rn", "ru", "sg", "sa", "si", "sk", "sl", "se", "sm", "sn", "sd", "so", "st", "es", "sc", "sr", "ss", "su", "sw", "sv", "ty", "ta", "tt", "te", "tg", "tl", "th", "bo", "ti", "to", "tn", "ts", "tk", "tr", "tw", "ug", "uk", "ur", "uz", "ve", "vi", "vo", "cy", "wa", "wo", "xh", "yi", "yo", "za", "zu"];
             if (!languages.includes(this.language.toLowerCase())) {
-                return "- This language is not valid. Make sure the language parameter is a string of two characters. ";
+                return "- This language is not valid. Make sure the language parameter is a string of two characters.\n";
             }
 
             // lowercase & trim
@@ -92,12 +90,12 @@ class MetadataValidator {
         title() {
             // required
             if (this.title == undefined) {
-                return "- A parameter title is required. ";
+                return "- A parameter title is required.\n";
             }
 
             // type String
             if (typeof this.title != "string") {
-                return "- The title needs to be of type string. ";
+                return "- The title needs to be of type string.\n";
             }
 
             // trim
@@ -108,12 +106,12 @@ class MetadataValidator {
         description() {
             // required
             if (this.description == undefined) {
-                return "- A parameter description is required. ";
+                return "- A parameter description is required.\n";
             }
 
             // type String
             if (typeof this.description != "string") {
-                return "- The description needs to be of type string. ";
+                return "- The description needs to be of type string.\n";
             }
 
             // trim
@@ -124,17 +122,17 @@ class MetadataValidator {
             if (this.keywords != undefined) {
                 // type array
                 if (!Array.isArray(this.keywords)) {
-                    return "- The keywords parameter needs to be an array of strings. ";
+                    return "- The keywords parameter needs to be an array of strings.\n";
                 }
                 // elements are type string
-                let err = [];
+                let err = "";
                 for (let i = 0; i < this.keywords.length; i++) {
                     if (typeof this.keywords[i] != "string") {
-                        err.push("    * '" + this.keywords[i] + "' is not of type string. ");
+                        err += "\t* '" + this.keywords[i] + "' is not of type string.\n";
                     }
                 }
                 if (err.length != 0) {
-                    err = ["- The keywords parameter needs to be an array of strings: ", ...err];
+                    err = "- The keywords parameter needs to be an array of strings: \n" + err;
                     return err;
                 }
             }
@@ -144,28 +142,28 @@ class MetadataValidator {
             if (this.educational_goals != undefined) {
                 // type array
                 if (!Array.isArray(this.educational_goals)) {
-                    return "- The educational_goals parameter needs to be an array. ";
+                    return "- The educational_goals parameter needs to be an array.\n";
                 }
 
                 // elements have source and/or id 
-                let err = [];
+                let err = "";
                 for (let i = 0; i < this.educational_goals.length; i++) {
                     if (!this.educational_goals[i].source && !this.educational_goals[i].id) {
-                        return "- An educational goal needs to have a source and/or id. ";
+                        return "- An educational goal needs to have a source and/or id.\n";
                     }
                     if (this.educational_goals[i].source) {
                         if (typeof this.educational_goals[i].source != "string") {
-                            err.push("    * '" + this.educational_goals[i].source + "' is not of type string. ");
+                            err += "\t* '" + this.educational_goals[i].source + "' is not of type string.\n";
                         }
                     }
                     if (this.educational_goals[i].id) {
                         if (typeof this.educational_goals[i].id != "string") {
-                            err.push("    * '" + this.educational_goals[i].id + "' is not of type string. ");
+                            err += "\t* '" + this.educational_goals[i].id + "' is not of type string.\n";
                         }
                     }
                 }
                 if (err.length != 0) {
-                    err = ["- The source and id of the educational goals need to be of type string: ", ...err];
+                    err = "- The source and id of the educational goals need to be of type string: \n" + err;
                     return err;
                 }
 
@@ -176,7 +174,7 @@ class MetadataValidator {
             if (this.copyright != undefined) {
                 // type String
                 if (typeof this.copyright != "string") {
-                    return "- The copyright parameter needs to be of type string. ";
+                    return "- The copyright parameter needs to be of type string.\n";
                 }
             }
         },
@@ -185,7 +183,7 @@ class MetadataValidator {
             if (this.licence != undefined) {
                 // type String
                 if (typeof this.licence != "string") {
-                    return "- The licence parameter needs to be of type string. ";
+                    return "- The licence parameter needs to be of type string.\n";
                 }
             }
         },
@@ -193,20 +191,20 @@ class MetadataValidator {
         content_type() {
             // required
             if (this.content_type == undefined) {
-                return "- A parameter content_type is required. ";
+                return "- A parameter content_type is required.\n";
             }
 
             // type String
             if (typeof this.content_type != "string") {
-                return "- The content_type parameter needs to be of type string. ";
+                return "- The content_type parameter needs to be of type string.\n";
             }
 
             // existing content type
             let types = ["text/plain", "text/markdown", "text/html", "image/image", "application/pdf", "audio/mpeg"];
             if (!types.includes(this.content_type)) {
-                let err = ["- This content_type is not valid. Make sure the content type is one of the following: "];
+                let err = "- This content_type is not valid. Make sure the content type is one of the following: \n";
                 types.forEach(type => {
-                    err.push("    * " + type + " ");
+                    err += "\t* " + type + " ";
                 });
                 return err;
             }
@@ -220,7 +218,7 @@ class MetadataValidator {
             }
             // type boolean
             if (typeof this.available != "boolean") {
-                return "- The available parameter needs to be of type boolean. ";
+                return "- The available parameter needs to be of type boolean.\n";
             }
         },
 
@@ -228,20 +226,20 @@ class MetadataValidator {
             if (this.target_ages != undefined) {
                 // type array
                 if (!Array.isArray(this.target_ages)) {
-                    return "- The target_ages parameter needs to be an array of numbers. ";
+                    return "- The target_ages parameter needs to be an array of numbers.\n";
                 }
                 // elements are type number and in range [0,150]
-                let err = [];
+                let err = "";
                 for (let i = 0; i < this.target_ages.length; i++) {
                     if (typeof this.target_ages[i] != "number") {
-                        err.push("    * '" + this.target_ages[i] + "' is not of type number. ");
+                        err += "\t* '" + this.target_ages[i] + "' is not of type number.\n";
                     }
                     if (this.target_ages[i] < 0 || this.target_ages[i] > 150) {
-                        err.push("    * '" + this.target_ages[i] + "' is not between 0 and 150. ");
+                        err += "\t* '" + this.target_ages[i] + "' is not between 0 and 150.\n";
                     }
                 }
                 if (err.length != 0) {
-                    err = ["- The target_ages parameter needs to be an array of numbers between 0 and 150: ", ...err];
+                    err = "- The target_ages parameter needs to be an array of numbers between 0 and 150: \n" + err;
                     return err;
                 }
             }
@@ -251,11 +249,11 @@ class MetadataValidator {
             if (this.difficulty != undefined) {
                 // type number
                 if (typeof this.difficulty != "number") {
-                    return "- The difficulty needs to be of type number. ";
+                    return "- The difficulty needs to be of type number.\n";
                 }
                 // in range [0,10]
                 if (this.difficulty < 0 || this.difficulty > 10) {
-                    return "- The difficulty needs to be between 0 and 10. ";
+                    return "- The difficulty needs to be between 0 and 10.\n";
                 }
             }
         },
@@ -268,15 +266,15 @@ class MetadataValidator {
                     return "- The return_value parameter needs to be an object with a callback_url and a callback_schema."
                 }
 
-                let err = [];
+                let err = "";
                 // callback_url type string
                 if (typeof this.return_value.callback_url != "string") {
-                    err.push("- The return value needs to have a callback_url of type string. ");
+                    err += "- The return value needs to have a callback_url of type string.\n";
                 }
 
                 // callback_schema type object
                 if (typeof this.return_value.callback_schema != "object") {
-                    err.push("- The return value needs to have a callback_schema of type object. ");
+                    err += "- The return value needs to have a callback_schema of type object.\n";
                 }
                 if (err) {
                     return err;
@@ -287,12 +285,12 @@ class MetadataValidator {
         content_location() {
             // required
             if (this.content_location == undefined) {
-                return "- A parameter content_location is required. ";
+                return "- A parameter content_location is required.\n";
             }
 
             // type String
             if (typeof this.content_location != "string") {
-                return "- The content_location parameter needs to be of type string. ";
+                return "- The content_location parameter needs to be of type string.\n";
             }
         }
     }
@@ -303,26 +301,20 @@ class MetadataValidator {
      * and the boolean indicates if the validation was succesfull
      */
     validate() {
-        let errors = [];
+        let errors = "";
         Object.values(this.validators).map(value => {
             if (typeof value === 'function') {
                 let val = value.call(this);
                 if (val) {
-                    if (typeof val == 'object')
-                        errors = [...errors, ...val];
-                    else
-                        errors.push(val);
+                    errors += val;
                 }
             }
         })
 
-        // If there are errors, log them as warning and these will be put in user.log (ugly, I know)
         if (errors && errors.length > 0) {
-            logger.warn("\u2193\u2193\u2193 [Metadata errors] \u2193\u2193\u2193 ");
-            errors.forEach(e => {
-                logger.warn(e);
-            });
-            logger.warn("\u2191\u2191\u2191 [Metadata errors] \u2191\u2191\u2191");
+            let title = "Metadata errors for the learning-object "
+                + (this.hruid && typeof this.hruid == "string" ? "with hruid " + this.hruid : "without a hruid");
+            UserLogger.error(errors, title);
             return [this.metadata, false];
 
         }
