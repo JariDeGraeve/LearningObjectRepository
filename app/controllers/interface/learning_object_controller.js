@@ -56,7 +56,7 @@ learningObjectController.findMetadataFile = (files) => {
  * because no other file needs to be processed other than index.md.
  * @param {array} files 
  * @param {string} contentType 
- * @returns name and content for the new html file.
+ * @returns name and content for the new html file together with the source files that need to be saved.
  */
 learningObjectController.processFiles = (files, contentType) => {
     logger.info("Find file for type: " + contentType);
@@ -68,6 +68,7 @@ learningObjectController.processFiles = (files, contentType) => {
     })
     let inputString = "";
     let htmlFile = "";
+    let resFiles = [];
     // Find the first file with the correct content type (+ define the inputstring)
     let file = filtered.find((f) => {
         switch (contentType) {
@@ -76,6 +77,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 if (f["originalname"].match(/.*\.(jpe?g)|(png)|(svg)$/)) {
                     inputString = f["originalname"]
                     htmlFile = f.originalname.replace(/\.(jpe?g)|(png)|(svg)$/, ".html");
+                    resFiles.push(f);
                     return true;
                 }
                 break;
@@ -84,7 +86,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 if (f["originalname"].match(/.*\.md$/)) {
                     inputString = f.buffer.toString('utf8');
                     htmlFile = f.originalname.replace(".md", ".html");
-
+                    resFiles = files;
                     return true;
                 }
                 break;
@@ -93,7 +95,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 if (f["originalname"].match(/.*\.txt$/)) {
                     inputString = f.buffer.toString('utf8');
                     htmlFile = f.originalname.replace(".txt", ".html");
-
+                    resFiles.push(f);
                     return true;
                 }
                 break;
@@ -102,7 +104,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 if (f["originalname"].match(/.*\.mp3$/)) {
                     inputString = f["originalname"]
                     htmlFile = f.originalname.replace(".mp3", ".html");
-
+                    resFiles.push(f);
                     return true;
                 }
                 break;
@@ -111,7 +113,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 if (f["originalname"].match(/.*\.pdf$/)) {
                     inputString = f["originalname"]
                     htmlFile = f.originalname.replace(".pdf", ".html");
-
+                    resFiles.push(f);
                     return true;
                 }
                 break;
@@ -124,13 +126,12 @@ learningObjectController.processFiles = (files, contentType) => {
     });
     logger.info("Processing file " + file["originalname"]);
     let proc = new ProcessingProxy();
-    return [htmlFile, proc.render(contentType, inputString)];
+    return [htmlFile, proc.render(contentType, inputString), resFiles];
 };
 
-// extract metadata from file 
-// (if the metadata is in index.md, the content is also processed)
+
 /**
- * 
+ * Extract the metadata from the metadata file (or index.md) together with the file.
  * @param {array} files 
  * @returns the metadata and if a index.md file is used also returns the new html filename and content.
  */
@@ -149,7 +150,7 @@ learningObjectController.extractMetadata = (files) => {
 
         let splitdata = proc.stripYAMLMetaData(mdString);   // Strip metadata and markdown from eachother
 
-        return [splitdata.metadata, html_file, proc.render(splitdata.markdown)];
+        return [splitdata.metadata, indexfile, html_file, proc.render(splitdata.markdown)];
     } else {
         // metadata.md or metadata.yaml
         let metadatafile = learningObjectController.findMetadataFile(files);
@@ -161,7 +162,7 @@ learningObjectController.extractMetadata = (files) => {
                 let mdString = metadatafile.buffer.toString('utf8');   // Read index markdown file into string
                 let proc = new MarkdownProcessor();
                 let splitdata = proc.stripYAMLMetaData(mdString);   // Strip metadata and markdown from eachother
-                return [splitdata.metadata];
+                return [splitdata.metadata, metadatafile];
             } else {
                 // metadata.yaml
                 let metadataText = metadatafile.buffer.toString('utf8').trim();
@@ -173,7 +174,7 @@ learningObjectController.extractMetadata = (files) => {
                 } catch (e) {
                     this.logger.error(`Unable to convert metadata to YAML: ${e}`);
                 }
-                return [metadata];
+                return [metadata, metadatafile];
             }
         } else {
             logger.error("There is no index.md, metadata.md or metadata.yaml file!")
@@ -244,8 +245,8 @@ learningObjectController.createLearningObject = async (req, res) => {
         for (let i = 0; i < req.files.length; i++) {
             req.files[i].originalname = path.join(...req.files[i].originalname.split(path.sep).slice(1));
         }
-        // Extract metadata from files (if there's a index.md file, the html filename and html string are also extracted)
-        let [metadata, htmlFile, htmlString] = learningObjectController.extractMetadata(req.files);
+        // Extract metadata and the metadata filename from files (if there's a index.md file, the html filename and html string are also extracted)
+        let [metadata, metadataFile, htmlFile, htmlString] = learningObjectController.extractMetadata(req.files);
 
         // Validate metadata
         logger.info("Validating metadata...");
@@ -261,18 +262,23 @@ learningObjectController.createLearningObject = async (req, res) => {
 
         const id = learningObject['_id'].toString();
         let destination = path.join(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION), id); // Use unique learning object id to define storage location
-
-        if (!htmlFile && !htmlString) {
+        let resFiles;
+        if (metadataFile.originalname.includes("metadata.")) {
             // If the metadata comes from a metadata.md or metadata.yaml file the correct content file needs to be processed
             // This is how we get the html filename and html string.
-            [htmlFile, htmlString] = learningObjectController.processFiles(req.files, learningObject.content_type);
+            // It also returns the nescessary files that need to be saved.
+            [htmlFile, htmlString, resFiles] = learningObjectController.processFiles(req.files, learningObject.content_type);
+            resFiles.push(metadataFile);
+        } else {
+            // If a index.md file is used, all other files need to be stored aswell because they can be used in the markdown
+            resFiles = req.files;
         }
 
         // Write html file
         learningObjectController.writeHtmlFile(destination, htmlFile, htmlString);
 
         // Save all source files
-        learningObjectController.saveSourceFiles(req.files, destination);
+        learningObjectController.saveSourceFiles(resFiles, destination);
 
         if (req.files.length <= 0) {
             return res.send(`You must select at least 1 file.`);
