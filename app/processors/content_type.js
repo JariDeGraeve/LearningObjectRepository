@@ -7,7 +7,6 @@ const ProcessorContentType = {
     APPLICATION_PDF: "application/pdf",
 
     EXTERN: "extern",
-    // LEARNING_OBJECT: "learning_object"
 }
 
 export { ProcessorContentType }

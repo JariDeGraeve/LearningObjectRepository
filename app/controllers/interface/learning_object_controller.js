@@ -36,6 +36,11 @@ learningObjectController.findMarkdownIndex = (files) => {
     }
 };
 
+/**
+ * Finds the metadata.md or metadata.yaml file among the files
+ * @param {array} files 
+ * @returns the metadata file.
+ */
 learningObjectController.findMetadataFile = (files) => {
     let regex = /.*metadata\.(md|yaml)$/;
     return files.find((file) => {
@@ -44,15 +49,22 @@ learningObjectController.findMetadataFile = (files) => {
 
 }
 
-// Process the correct file given the content type if a metadata.md or metadata.yaml file is used. 
-// (Shouldn't be called if a index.md file is used)
+
+/**
+ * Process the correct file given the content type if a metadata.md or metadata.yaml file is used.
+ * If a index.md file is used, the content type should be text/markdown and this function shouldn't be called,
+ * because no other file needs to be processed other than index.md.
+ * @param {array} files 
+ * @param {string} contentType 
+ * @returns name and content for the new html file.
+ */
 learningObjectController.processFiles = (files, contentType) => {
     logger.info("Find file for type: " + contentType);
 
     // Filter metadata files or hidden files (like .DS_Store on macOS)
     let filtered = files.filter((f) => {
         let ignoreregex = /(.*metadata\.((md)|(yaml)))|(^\..*)$/;
-        return !f["originalname"].match(ignoreregex); // ignore metadata.md, metadata.yaml and hidden files
+        return !f["originalname"].match(ignoreregex);
     })
     let inputString = "";
     let htmlFile = "";
@@ -117,10 +129,15 @@ learningObjectController.processFiles = (files, contentType) => {
 
 // extract metadata from file 
 // (if the metadata is in index.md, the content is also processed)
+/**
+ * 
+ * @param {array} files 
+ * @returns the metadata and if a index.md file is used also returns the new html filename and content.
+ */
 learningObjectController.extractMetadata = (files) => {
     logger.info("Extracting metadata........");
 
-    // index.md
+    // index.md 
     let indexfile = learningObjectController.findMarkdownIndex(files);  // Look for the index markdown file
     if (indexfile) {
         logger.info("Metadata found in " + indexfile.originalname);
@@ -138,7 +155,7 @@ learningObjectController.extractMetadata = (files) => {
         let metadatafile = learningObjectController.findMetadataFile(files);
         if (metadatafile) {
             logger.info("Metadata found in " + metadatafile.originalname);
-
+            // check if metadata.md or metadata.yaml
             if (metadatafile.originalname.includes(".md")) {
                 // metadata.md
                 let mdString = metadatafile.buffer.toString('utf8');   // Read index markdown file into string
@@ -149,6 +166,7 @@ learningObjectController.extractMetadata = (files) => {
                 // metadata.yaml
                 let metadataText = metadatafile.buffer.toString('utf8').trim();
 
+                // convert metadata to yaml
                 let metadata = {};
                 try {
                     metadata = yaml.load(metadataText);
@@ -164,7 +182,12 @@ learningObjectController.extractMetadata = (files) => {
 
 };
 
-
+/**
+ * Write the html file.
+ * @param {string} destination - destination of html file (storage)
+ * @param {string} htmlFile - name of html file
+ * @param {string} htmlString - content of html
+ */
 learningObjectController.writeHtmlFile = async (destination, htmlFile, htmlString) => {
     let htmlFileFull = path.join(destination, htmlFile);
     mkdirp.sync(path.dirname(htmlFileFull));
@@ -179,6 +202,11 @@ learningObjectController.writeHtmlFile = async (destination, htmlFile, htmlStrin
 
 };
 
+/**
+ * Saves all necessary source files in storage.
+ * @param {array} files 
+ * @param {string} destination - location for storage
+ */
 learningObjectController.saveSourceFiles = async (files, destination) => {
     for (const elem of files) {
         let filename = path.join(destination, elem.originalname);
@@ -222,7 +250,6 @@ learningObjectController.createLearningObject = async (req, res) => {
         // Validate metadata
         logger.info("Validating metadata...");
         let val = new MetadataValidator(metadata);
-
         let valid;
         [metadata, valid] = val.validate();
 

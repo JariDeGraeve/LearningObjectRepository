@@ -28,7 +28,7 @@ class MarkdownProcessor extends Processor {
             //html = DOMPurify.sanitize(marked(mdText)); 
             html = marked(mdText);
         } catch (e) {
-            console.log("marked went wrong")
+            this.logger.error("Something went wrong with marked...")
             throw new InvalidArgumentError(e.message);
         }
         return html;

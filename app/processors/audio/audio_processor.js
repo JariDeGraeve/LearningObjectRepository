@@ -15,6 +15,7 @@ class AudioProcessor extends Processor {
      * @returns 
      */
     render(audioUrl, args = {}) {
+        // TODO: check if it's a valid httpurl or local file
         // if (!isValidHttpUrl(audioUrl)) {
         //     throw new InvalidArgumentError();
         // } else {

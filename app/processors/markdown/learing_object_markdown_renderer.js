@@ -20,16 +20,19 @@ class LearningObjectMarkdownRenderer {
                 </h${level}>`;
     };
 
+    // When the syntax for a link is used => [text](href "title")
+    // render a custom link when the prefix for a learning object is used.
     link(href, title, text) {
         if (href.startsWith(this.learingObjectPrefix)) {
-            // TODO: Process the learning object and render it as defined by the content type.
-            // Probably a link to the learning object html, using the ID
-            return `<a href=../${href.split(/\/(.+)/, 2)[1]}>Test: ${title} - ${text}</a>`
+            // TODO: Probably a link to the learning object html, using the ID
+            return `<a href=../id?/${href.split(/\/(.+)/, 2)[1]}>Test: ${title} - ${text}</a>`
         } else {
             return false; // Let marked process the link
         }
     };
 
+    // When the syntax for an image is used => ![text](href "title")
+    // render a learning object, pdf, audio or video if a prefix is used.
     image(href, title, text) {
         let proc = new ProcessingProxy();
 

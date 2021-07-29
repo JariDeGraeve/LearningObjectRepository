@@ -17,6 +17,7 @@ class PdfProcessor extends Processor {
      * @returns 
      */
     render(pdfUrl, args = {}) {
+        // TODO: check if valid httpurl, or local file
         // if (!isValidHttpUrl(pdfUrl)) {
         //     throw new InvalidArgumentError();
         // } else {
