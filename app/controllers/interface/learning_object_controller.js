@@ -71,10 +71,11 @@ learningObjectController.processFiles = (files, contentType) => {
     let resFiles = [];
     // Find the first file with the correct content type (+ define the inputstring)
     let file = filtered.find((f) => {
+        let ext = path.extname(f.originalname);
         switch (contentType) {
             case ProcessorContentType.IMAGE_INLINE: case ProcessorContentType.IMAGE_BLOCK:
                 // Find image file
-                if (f["originalname"].match(/.*\.(jpe?g)|(png)|(svg)$/)) {
+                if (ext.match(/\.(jpe?g)|(png)|(svg)$/)) {
                     inputString = f["originalname"]
                     htmlFile = f.originalname.replace(/\.(jpe?g)|(png)|(svg)$/, ".html");
                     resFiles.push(f);
@@ -83,7 +84,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 break;
             case ProcessorContentType.TEXT_MARKDOWN:
                 // Find markdown file
-                if (f["originalname"].match(/.*\.md$/)) {
+                if (ext == ".md") {
                     inputString = f.buffer.toString('utf8');
                     htmlFile = f.originalname.replace(".md", ".html");
                     resFiles = files;
@@ -92,7 +93,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 break;
             case ProcessorContentType.TEXT_PLAIN:
                 // Find text file
-                if (f["originalname"].match(/.*\.txt$/)) {
+                if (ext == ".txt") {
                     inputString = f.buffer.toString('utf8');
                     htmlFile = f.originalname.replace(".txt", ".html");
                     resFiles.push(f);
@@ -101,7 +102,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 break;
             case ProcessorContentType.AUDIO_MPEG:
                 // Find audio file
-                if (f["originalname"].match(/.*\.mp3$/)) {
+                if (ext == ".mp3") {
                     inputString = f["originalname"]
                     htmlFile = f.originalname.replace(".mp3", ".html");
                     resFiles.push(f);
@@ -110,7 +111,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 break;
             case ProcessorContentType.APPLICATION_PDF:
                 // Find pdf file
-                if (f["originalname"].match(/.*\.pdf$/)) {
+                if (ext == ".pdf") {
                     inputString = f["originalname"]
                     htmlFile = f.originalname.replace(".pdf", ".html");
                     resFiles.push(f);

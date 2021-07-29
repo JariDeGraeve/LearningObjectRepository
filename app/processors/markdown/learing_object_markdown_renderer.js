@@ -1,6 +1,9 @@
 import { ProcessorContentType } from "../content_type.js";
 import LearningObjectProcessor from "../learning_object/learing_object_processor.js";
 import ProcessingProxy from "../processing_proxy.js";
+import fs from "fs"
+import path from "path"
+
 
 class LearningObjectMarkdownRenderer {
     learingObjectPrefix = '@learning-object';
@@ -24,8 +27,11 @@ class LearningObjectMarkdownRenderer {
     // render a custom link when the prefix for a learning object is used.
     link(href, title, text) {
         if (href.startsWith(this.learingObjectPrefix)) {
-            // TODO: Probably a link to the learning object html, using the ID
-            return `<a href=../id?/${href.split(/\/(.+)/, 2)[1]}>Test: ${title} - ${text}</a>`
+            let dirCont = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, href.split(/\/(.+)/, 2)[1]));
+            let htmlFile = dirCont.find((file) => {
+                return file.match(/.*\.html/)
+            });
+            return `<a href=../${href.split(/\/(.+)/, 2)[1]}/${htmlFile}><b>${title}</b> - ${text}</a>`
         } else {
             return false; // Let marked process the link
         }
