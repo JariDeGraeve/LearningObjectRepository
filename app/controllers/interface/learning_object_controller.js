@@ -127,8 +127,11 @@ learningObjectController.extractMetadata = (files) => {
 
         let html_file = indexfile.originalname.replace(".md", ".html");     // create filename for index.html page
         let mdString = indexfile.buffer.toString('utf8');   // Read index markdown file into string
+
         let proc = new MarkdownProcessor();
+
         let splitdata = proc.stripYAMLMetaData(mdString);   // Strip metadata and markdown from eachother
+
         return [splitdata.metadata, html_file, proc.render(splitdata.markdown)];
     } else {
         // metadata.md or metadata.yaml
@@ -217,16 +220,18 @@ learningObjectController.createLearningObject = async (req, res) => {
         let [metadata, htmlFile, htmlString] = learningObjectController.extractMetadata(req.files);
 
         // Validate metadata
+        logger.info("Validating metadata...");
         let val = new MetadataValidator(metadata);
+
         let valid;
         [metadata, valid] = val.validate();
-        console.log(metadata);
+
         if (!valid) {
             throw "The metadata is not correctly formatted."
         }
-
         // Create learning object
         const learningObject = new LearningObject(metadata);
+
         const id = learningObject['_id'].toString();
         let destination = path.join(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION), id); // Use unique learning object id to define storage location
 

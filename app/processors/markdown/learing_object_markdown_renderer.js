@@ -23,7 +23,8 @@ class LearningObjectMarkdownRenderer {
     link(href, title, text) {
         if (href.startsWith(this.learingObjectPrefix)) {
             // TODO: Process the learning object and render it as defined by the content type.
-            return `<a href=${href}>Test: ${title} - ${text}</a>`
+            // Probably a link to the learning object html, using the ID
+            return `<a href=../${href.split(/\/(.+)/, 2)[1]}>Test: ${title} - ${text}</a>`
         } else {
             return false; // Let marked process the link
         }
@@ -33,8 +34,9 @@ class LearningObjectMarkdownRenderer {
         let proc = new ProcessingProxy();
 
         if (href.startsWith(this.learingObjectPrefix)) {
-            proc = new LearningObjectProcessor();
-            return proc.render(ProcessorContentType.LEARNING_OBJECT, href.split(/\/(.+)/, 2)[1]);
+            let lproc = new LearningObjectProcessor();
+            return lproc.render(href.split(/\/(.+)/, 2)[1]);
+
         } else if (href.startsWith(this.pdfPrefix)) {
             return proc.render(ProcessorContentType.APPLICATION_PDF, href.split(/\/(.+)/, 2)[1]);
 
