@@ -1,0 +1,62 @@
+<%- include("./../../shared/header.ejs") %>
+
+  <div class="jumbotron">
+    <div class="container">
+      <h1>
+        <%= hello %>
+      </h1>
+    </div>
+  </div>
+
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-8 mt-3">
+        <h4>All available learning objects:</h4>
+
+        <table style="width: 75%;">
+          <tr>
+            <th>hruid</th>
+            <th>id</th>
+          </tr>
+          <% objects.forEach(function(obj){ %>
+            <tr>
+              <td>
+                <%= obj.hruid %>
+              </td>
+              <td>
+                <%= obj.id %>
+              </td>
+            </tr>
+            <% }); %>
+        </table>
+
+      </div>
+    </div>
+    <hr />
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="preview-images"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <style type="text/css">
+    table,
+    tr,
+    th,
+    td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 5px;
+
+    }
+  </style>
+
+  <%- include("./../../shared/footer.ejs") %>

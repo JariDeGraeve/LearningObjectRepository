@@ -28,6 +28,32 @@ learningObjectController.getCreateLearningObject = (req, res) => {
     });
 };
 
+learningObjectController.getAllLearningObjects = (req, res) => {
+    let objects = learningObjectController.findAllObjectHRUIDandIDs();
+
+    res.render('interface/learning_object/learning_object.all.ejs', {
+        hello: "Hello learning object!",
+        objects: objects
+    });
+};
+
+learningObjectController.findAllObjectHRUIDandIDs = () => {
+    let res = []
+    let dirCont = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION));
+    dirCont = dirCont.filter((file) => {
+        return file.charAt(0) != "."
+    });
+    dirCont.forEach(id => {
+        let files = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id));
+        files = files.map((f) => {
+            return { originalname: f, buffer: fs.readFileSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)) };
+        });
+        let [metadata] = learningObjectController.extractMetadata(files)
+        res.push({ id: id, hruid: metadata.hruid });
+    });
+    return res;
+}
+
 learningObjectController.findMarkdownIndex = (files) => {
     let indexregex = /.*index.md$/
     for (let i = 0; i < files.length; i++) {
@@ -252,7 +278,8 @@ learningObjectController.createLearningObject = async (req, res) => {
 
         // Validate metadata
         logger.info("Validating metadata...");
-        let val = new MetadataValidator(metadata);
+        let ids = learningObjectController.findAllObjectHRUIDandIDs();
+        let val = new MetadataValidator(metadata, ids);
         let valid;
         [metadata, valid] = val.validate();
 
