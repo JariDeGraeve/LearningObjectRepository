@@ -20,7 +20,7 @@ class InlineImageProcessor extends Processor {
         if (typeof args.altText == 'undefined') {
             args.altText = "";
         }
-        if (!isValidHttpUrl(imageUrl) && (!imageUrl || !imageUrl.match(/^[^.].*\.pdf/))) {
+        if (!isValidHttpUrl(imageUrl) && (!imageUrl || !imageUrl.match(/^[^.].*\.(jpe?g|png|svg)/))) {
             throw new InvalidArgumentError();
         } else {
             return DOMPurify.sanitize(`<img src="${imageUrl}" alt="${args.altText}">`);

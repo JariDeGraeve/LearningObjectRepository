@@ -20,9 +20,7 @@ class ExternProcessor extends Processor {
         if (!isValidHttpUrl(externURL)) {
             throw new InvalidArgumentError();
         } else {
-            // TODO DOMPurify.sanatize deletes iframe, embed or object tags. => solve this
-            // return DOMPurify.sanitize(`<object data="${externURL}" width="100%" height="800px"></object>`);
-            return `<iframe width="420" height="315" src="${externURL}"></iframe>`
+            return DOMPurify.sanitize(`<iframe width="420" height="315" src="${externURL}"></iframe>`, { ADD_TAGS: ["iframe"] });
         }
     }
 }

@@ -18,11 +18,10 @@ class PdfProcessor extends Processor {
      */
     render(pdfUrl, args = {}) {
         if (!isValidHttpUrl(pdfUrl) && (!pdfUrl || !pdfUrl.match(/^[^.].*\.pdf/))) {
+            console.log("render of pdf failed")
             throw new InvalidArgumentError();
         } else {
-            // TODO DOMPurify.sanatize deletes iframe, embed or object tags. => solve this
-            // return DOMPurify.sanitize(`<object data="${pdfUrl}" width="100%" height="800px"></object>`);
-            return `<embed src="${pdfUrl}" type="application/pdf" width="100%" height="800px"/>`
+            return DOMPurify.sanitize(`<embed src="${pdfUrl}" type="application/pdf" width="100%" height="800px"/>`, { ADD_TAGS: ["embed"] })
         }
     }
 }

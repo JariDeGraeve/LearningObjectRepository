@@ -24,9 +24,7 @@ class MarkdownProcessor extends Processor {
     render(mdText, args = {}) {
         let html = "";
         try {
-            //TODO DOMPurify.sanitize deletes embed, iframe or object => change specs in some way
-            //html = DOMPurify.sanitize(marked(mdText)); 
-            html = marked(mdText);
+            html = DOMPurify.sanitize(marked(mdText), { ADD_TAGS: ["embed", "iframe"] });
         } catch (e) {
             this.logger.error("Something went wrong with marked...")
             throw new InvalidArgumentError(e.message);
