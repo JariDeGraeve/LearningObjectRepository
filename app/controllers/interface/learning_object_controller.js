@@ -49,7 +49,7 @@ learningObjectController.findAllObjectHRUIDandIDs = () => {
             return { originalname: f, buffer: fs.readFileSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)) };
         });
         let [metadata] = learningObjectController.extractMetadata(files)
-        res.push({ id: id, hruid: metadata.hruid });
+        res.push({ id: id, hruid: metadata.hruid, available: metadata.available });
     });
     return res;
 }

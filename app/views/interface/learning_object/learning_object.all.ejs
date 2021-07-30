@@ -19,6 +19,7 @@
           <tr>
             <th>hruid</th>
             <th>id</th>
+            <th>available</th>
           </tr>
           <% objects.forEach(function(obj){ %>
             <tr>
@@ -27,6 +28,9 @@
               </td>
               <td>
                 <%= obj.id %>
+              </td>
+              <td>
+                <%= obj.available %>
               </td>
             </tr>
             <% }); %>
