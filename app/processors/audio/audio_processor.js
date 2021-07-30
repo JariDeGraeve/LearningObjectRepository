@@ -15,15 +15,14 @@ class AudioProcessor extends Processor {
      * @returns 
      */
     render(audioUrl, args = {}) {
-        // TODO: check if it's a valid httpurl or local file
-        // if (!isValidHttpUrl(audioUrl)) {
-        //     throw new InvalidArgumentError();
-        // } else {
-        return DOMPurify.sanitize(`<audio controls>
+        if (!isValidHttpUrl(audioUrl) && (!audioUrl || !audioUrl.match(/^[^.].*\.pdf/))) {
+            throw new InvalidArgumentError();
+        } else {
+            return DOMPurify.sanitize(`<audio controls>
                 <source src="${audioUrl}" type="audio/mpeg">
                 Your browser does not support the audio element.
                 </audio>`);
-        // }
+        }
     }
 }
 

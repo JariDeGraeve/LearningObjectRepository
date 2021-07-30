@@ -1,8 +1,8 @@
 import DOMPurify from 'isomorphic-dompurify'
 import Processor from "../processor.js"
 
-class TextProcessor extends Processor{
-    constructor(){
+class TextProcessor extends Processor {
+    constructor() {
         super();
     }
 
@@ -12,7 +12,7 @@ class TextProcessor extends Processor{
      * @param {object} args Optional arguments 
      * @returns 
      */
-    render(text, args = {}){
+    render(text, args = {}) {
         // Sanitize plain text to prevent xss.
         return DOMPurify.sanitize(text);
     }

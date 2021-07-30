@@ -19,8 +19,7 @@ class LearningObjectProcessor extends Processor {
      * @returns 
      */
     render(learningObjectId, args = {}) {
-        //TODO: Get original learning object data and metadata from the database and pass to the processingproxy with the correct content type.
-        //return this.processingProxy.render("text/plain", "[This will be a learningObject with ID: " + learningObjectId + "]");
+
         let dirCont = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, learningObjectId));
         let htmlFile = dirCont.find((file) => {
             return file.match(/.*\.html/)
@@ -32,15 +31,6 @@ class LearningObjectProcessor extends Processor {
         } catch (err) {
             console.error(err)
         }
-        // await new Promise((resolve) => {
-        //     fs.readFile(filename, 'utf8', (err, data) => {
-        //         if (err) {
-        //             console.log(err);
-        //         }
-        //         html = data;
-        //         resolve();
-        //     });
-        // });
         return html;
     }
 }
