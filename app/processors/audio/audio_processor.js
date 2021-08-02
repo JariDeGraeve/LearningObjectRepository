@@ -19,7 +19,7 @@ class AudioProcessor extends Processor {
             throw new InvalidArgumentError();
         } else {
             return DOMPurify.sanitize(`<audio controls>
-                <source src="${audioUrl}" type="audio/mpeg">
+                <source src="${audioUrl}" type=${args.type}>
                 Your browser does not support the audio element.
                 </audio>`);
         }

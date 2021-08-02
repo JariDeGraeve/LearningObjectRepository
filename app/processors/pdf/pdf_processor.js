@@ -20,7 +20,7 @@ class PdfProcessor extends Processor {
         if (!isValidHttpUrl(pdfUrl) && (!pdfUrl || !pdfUrl.match(/^(?!http.*$)[^.].*\.pdf/))) {
             throw new InvalidArgumentError();
         } else {
-            return DOMPurify.sanitize(`<embed src="${pdfUrl}" type="application/pdf" width="100%" height="800px"/>`, { ADD_TAGS: ["embed"] })
+            return DOMPurify.sanitize(`<embed src="${pdfUrl}" type="application/pdf" width="${args.width}" height="${args.height}""/>`, { ADD_TAGS: ["embed"] })
         }
     }
 }

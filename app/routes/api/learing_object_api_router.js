@@ -1,8 +1,9 @@
 import express from "express"
 import learningObjectApiController from "../../controllers/api/learing_object_api_controller.js"
-let learningObjectApiRouter = express.Router({mergeParams: true});
+let learningObjectApiRouter = express.Router({ mergeParams: true });
 
 learningObjectApiRouter.route("/getContent/:id").get((req, res) => {
+    console.log("here!")
     learningObjectApiController.getLearningObject(req, res);
 });
 

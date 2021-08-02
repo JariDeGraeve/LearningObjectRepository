@@ -47,13 +47,13 @@ class LearningObjectMarkdownRenderer {
             return lproc.render(href.split(/\/(.+)/, 2)[1]);
 
         } else if (href.startsWith(this.pdfPrefix)) {
-            return proc.render(ProcessorContentType.APPLICATION_PDF, href.split(/\/(.+)/, 2)[1]);
+            return proc.render(ProcessorContentType.APPLICATION_PDF, href.split(/\/(.+)/, 2)[1], { width: text.split(/,(.+)/, 2)[0], height: text.split(/,(.+)/, 2)[1] });
 
         } else if (href.startsWith(this.audioPrefix)) {
-            return proc.render(ProcessorContentType.AUDIO_MPEG, href.split(/\/(.+)/, 2)[1]);
+            return proc.render(ProcessorContentType.AUDIO_MPEG, href.split(/\/(.+)/, 2)[1], { type: "audio/mpeg" });
 
         } else if (href.startsWith(this.videoPrefix)) {
-            return proc.render(ProcessorContentType.EXTERN, href.split(/\/(.+)/, 2)[1]);
+            return proc.render(ProcessorContentType.EXTERN, href.split(/\/(.+)/, 2)[1], { width: text.split(/,(.+)/, 2)[0], height: text.split(/,(.+)/, 2)[1] });
 
         } else {
             return false; // Let marked process the link

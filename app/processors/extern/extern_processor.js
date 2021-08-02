@@ -13,14 +13,14 @@ class ExternProcessor extends Processor {
     /**
      * 
      * @param {string} externURL
-     * @param {object} args Optional arguments specific to the render function of the VideoProcessor
+     * @param {object} args Optional arguments specific to the render function of the ExternProcessor
      * @returns 
      */
     render(externURL, args = {}) {
         if (!isValidHttpUrl(externURL)) {
             throw new InvalidArgumentError();
         } else {
-            return DOMPurify.sanitize(`<iframe width="420" height="315" src="${externURL}"></iframe>`, { ADD_TAGS: ["iframe"] });
+            return DOMPurify.sanitize(`<iframe width="${args.width}" height="${args.height}" src="${externURL}"></iframe>`, { ADD_TAGS: ["iframe"] });
         }
     }
 }

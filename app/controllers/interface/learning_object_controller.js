@@ -49,7 +49,8 @@ learningObjectController.findAllObjectHRUIDandIDs = () => {
             return { originalname: f, buffer: fs.readFileSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)) };
         });
         let [metadata] = learningObjectController.extractMetadata(files)
-        res.push({ id: id, hruid: metadata.hruid, available: metadata.available });
+        let url = path.join("/api/learningObject/getContent/", id);
+        res.push({ id: id, hruid: metadata.hruid, available: metadata.available, url: url });
     });
     return res;
 }
@@ -85,17 +86,16 @@ learningObjectController.findMetadataFile = (files) => {
  * @param {string} contentType 
  * @returns name and content for the new html file together with the source files that need to be saved.
  */
-learningObjectController.processFiles = (files, contentType) => {
+learningObjectController.processFiles = (files, contentType, metadata = {}) => {
     logger.info("Find file for type: " + contentType);
-
     // Filter metadata files or hidden files (like .DS_Store on macOS)
     let filtered = files.filter((f) => {
         let ignoreregex = /(.*metadata\.((md)|(yaml)))|(^\..*)$/;
         return !f["originalname"].match(ignoreregex);
     })
     let inputString = "";
-    let htmlFile = "";
     let resFiles = [];
+    let args = {};
     // Find the first file with the correct content type (+ define the inputstring)
     let file = filtered.find((f) => {
         let ext = path.extname(f.originalname);
@@ -104,7 +104,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 // Find image file
                 if (ext.match(/\.(jpe?g)|(png)|(svg)$/)) {
                     inputString = f["originalname"]
-                    htmlFile = f.originalname.replace(/\.(jpe?g)|(png)|(svg)$/, ".html");
+                    args = metadata.args ? { width: metadata.args.width ? metadata.args.width : '100%', height: metadata.args.height ? metadata.args.height : '800px' } : { width: '100%', height: '800px' }
                     resFiles.push(f);
                     return true;
                 }
@@ -113,7 +113,6 @@ learningObjectController.processFiles = (files, contentType) => {
                 // Find markdown file
                 if (ext == ".md") {
                     inputString = f.buffer.toString('utf8');
-                    htmlFile = f.originalname.replace(".md", ".html");
                     resFiles = files;
                     return true;
                 }
@@ -122,7 +121,6 @@ learningObjectController.processFiles = (files, contentType) => {
                 // Find text file
                 if (ext == ".txt") {
                     inputString = f.buffer.toString('utf8');
-                    htmlFile = f.originalname.replace(".txt", ".html");
                     resFiles.push(f);
                     return true;
                 }
@@ -131,7 +129,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 // Find audio file
                 if (ext == ".mp3") {
                     inputString = f["originalname"]
-                    htmlFile = f.originalname.replace(".mp3", ".html");
+                    args.type = "audio/mpeg"
                     resFiles.push(f);
                     return true;
                 }
@@ -140,7 +138,7 @@ learningObjectController.processFiles = (files, contentType) => {
                 // Find pdf file
                 if (ext == ".pdf") {
                     inputString = f["originalname"]
-                    htmlFile = f.originalname.replace(".pdf", ".html");
+                    args = metadata.args ? { width: metadata.args.width ? metadata.args.width : '100%', height: metadata.args.height ? metadata.args.height : '800px' } : { width: '100%', height: '800px' }
                     resFiles.push(f);
                     return true;
                 }
@@ -154,7 +152,7 @@ learningObjectController.processFiles = (files, contentType) => {
     });
     logger.info("Processing file " + file["originalname"]);
     let proc = new ProcessingProxy();
-    return [htmlFile, proc.render(contentType, inputString), resFiles];
+    return [proc.render(contentType, inputString, args), resFiles];
 };
 
 learningObjectController.processMarkdown = (md) => {
@@ -172,14 +170,13 @@ learningObjectController.extractMetadata = (files) => {
     let indexfile = learningObjectController.findMarkdownIndex(files);  // Look for the index markdown file
     if (indexfile) {
 
-        let html_file = indexfile.originalname.replace(".md", ".html");     // create filename for index.html page
         let mdString = indexfile.buffer.toString('utf8');   // Read index markdown file into string
 
         let proc = new MarkdownProcessor();
 
         let splitdata = proc.stripYAMLMetaData(mdString);   // Strip metadata and markdown from eachother
 
-        return [splitdata.metadata, indexfile, html_file, splitdata.markdown];
+        return [splitdata.metadata, indexfile, splitdata.markdown];
     } else {
         // metadata.md or metadata.yaml
         let metadatafile = learningObjectController.findMetadataFile(files);
@@ -276,7 +273,7 @@ learningObjectController.createLearningObject = async (req, res) => {
         logger.info("Extracting metadata...");
 
         // Extract metadata and the metadata filename from files (if there's a index.md file, the html filename and html string are also extracted)
-        let [metadata, metadataFile, htmlFile, markdown] = learningObjectController.extractMetadata(req.files);
+        let [metadata, metadataFile, markdown] = learningObjectController.extractMetadata(req.files);
         logger.info("Metadata found in " + metadataFile.originalname);
 
         // Validate metadata
@@ -302,7 +299,7 @@ learningObjectController.createLearningObject = async (req, res) => {
             // If the metadata comes from a metadata.md or metadata.yaml file the correct content file needs to be processed
             // This is how we get the html filename and html string.
             // It also returns the nescessary files that need to be saved.
-            [htmlFile, htmlString, resFiles] = learningObjectController.processFiles(req.files, learningObject.content_type);
+            [htmlString, resFiles] = learningObjectController.processFiles(req.files, learningObject.content_type, metadata);
             resFiles.push(metadataFile);
         } else {
             // If a index.md file is used, all other files need to be stored aswell because they can be used in the markdown
@@ -311,7 +308,7 @@ learningObjectController.createLearningObject = async (req, res) => {
         }
 
         // Write html file
-        learningObjectController.writeHtmlFile(destination, htmlFile, htmlString);
+        learningObjectController.writeHtmlFile(destination, "index.html", htmlString);
 
         // Save all source files
         learningObjectController.saveSourceFiles(resFiles, destination);
@@ -320,7 +317,7 @@ learningObjectController.createLearningObject = async (req, res) => {
             return res.send(`You must select at least 1 file.`);
         }
         UserLogger.info("The learning-object with hruid " + learningObject.hruid + " was created correctly with id " + id);
-        let redirectpath = path.join("/", process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, htmlFile);
+        let redirectpath = path.join("/", process.env.LEARNING_OBJECT_STORAGE_LOCATION, id);
         return res.redirect(redirectpath);
         //return res.sendfile(indexfile_html_full);
         //return res.send(`Files has been uploaded.`);
