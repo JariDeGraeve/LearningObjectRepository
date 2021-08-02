@@ -17,8 +17,7 @@ class PdfProcessor extends Processor {
      * @returns 
      */
     render(pdfUrl, args = {}) {
-        if (!isValidHttpUrl(pdfUrl) && (!pdfUrl || !pdfUrl.match(/^[^.].*\.pdf/))) {
-            console.log("render of pdf failed")
+        if (!isValidHttpUrl(pdfUrl) && (!pdfUrl || !pdfUrl.match(/^(?!http.*$)[^.].*\.pdf/))) {
             throw new InvalidArgumentError();
         } else {
             return DOMPurify.sanitize(`<embed src="${pdfUrl}" type="application/pdf" width="100%" height="800px"/>`, { ADD_TAGS: ["embed"] })

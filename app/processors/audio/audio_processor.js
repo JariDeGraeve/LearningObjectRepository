@@ -15,7 +15,7 @@ class AudioProcessor extends Processor {
      * @returns 
      */
     render(audioUrl, args = {}) {
-        if (!isValidHttpUrl(audioUrl) && (!audioUrl || !audioUrl.match(/^[^.].*\.mp3/))) {
+        if (!isValidHttpUrl(audioUrl) && (!audioUrl || !audioUrl.match(/^(?!http.*$)[^.].*\.mp3/))) {
             throw new InvalidArgumentError();
         } else {
             return DOMPurify.sanitize(`<audio controls>
