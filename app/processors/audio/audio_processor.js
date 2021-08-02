@@ -4,8 +4,10 @@ import InvalidArgumentError from '../../utils/invalid_argument_error.js'
 import DOMPurify from 'isomorphic-dompurify';
 
 class AudioProcessor extends Processor {
+
     constructor() {
         super();
+        this.types = ["audio/mpeg"] // TODO add functionality to accept other audio types (ogg, wav)
     }
 
     /**
@@ -16,7 +18,9 @@ class AudioProcessor extends Processor {
      */
     render(audioUrl, args = {}) {
         if (!isValidHttpUrl(audioUrl) && (!audioUrl || !audioUrl.match(/^(?!http.*$)[^.].*\.mp3/))) {
-            throw new InvalidArgumentError();
+            throw new InvalidArgumentError("The url for the audio-file is not correct.");
+        } else if (!args.type || !this.types.includes(args.type)) {
+            throw new InvalidArgumentError("A valid media type has to be given as an argument.");
         } else {
             return DOMPurify.sanitize(`<audio controls>
                 <source src="${audioUrl}" type=${args.type}>
