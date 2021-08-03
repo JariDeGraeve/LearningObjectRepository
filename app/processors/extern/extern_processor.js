@@ -16,12 +16,24 @@ class ExternProcessor extends Processor {
      * @param {object} args Optional arguments specific to the render function of the ExternProcessor
      * @returns 
      */
-    render(externURL, args = {}) {
+    render(externURL, args = { width: "420px", height: "315px" }) {
         if (!isValidHttpUrl(externURL)) {
-            throw new InvalidArgumentError();
-        } else {
-            return DOMPurify.sanitize(`<iframe width="${args.width}" height="${args.height}" src="${externURL}"></iframe>`, { ADD_TAGS: ["iframe"] });
+            throw new InvalidArgumentError("The url is not valid: " + externURL);
         }
+        if (!args.width || args.width == "") {
+            args.width = "420px";
+        }
+        if (!args.height || args.height == "") {
+            args.height = "315px";
+        }
+        let regex = /inherit|initial|auto|\d+px|\d+%/
+        if (!args.width.match(regex) || !args.height.match(regex)) {
+            throw new InvalidArgumentError("The width and/or height of the content are not valid.");
+
+        }
+
+        return DOMPurify.sanitize(`<iframe width="${args.width}" height="${args.height}" src="${externURL}"></iframe>`, { ADD_TAGS: ["iframe"] });
+
     }
 }
 
