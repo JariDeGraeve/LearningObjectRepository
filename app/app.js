@@ -78,7 +78,7 @@ app.set('views', path.join(path.resolve(), 'app', 'views'));
 app.set('view engine', 'ejs');
 
 // a cronjob to pull the repository and process the learning-objects
-schedule.scheduleJob('*/10 * * * * *', function () {
+schedule.scheduleJob('0 0 * * *', function () {
     pullAndProcessRepository(path.resolve("repos"));
 });
 
