@@ -12,6 +12,7 @@ import { ProcessorContentType } from "../../processors/content_type.js"
 import yaml from "js-yaml"
 import MetadataValidator from "./metadata_validator.js"
 import UserLogger from '../../utils/user_logger.js'
+import InvalidArgumentError from "../../utils/invalid_argument_error.js"
 
 
 let logger = Logger.getLogger()
@@ -40,9 +41,11 @@ learningObjectController.getAllLearningObjects = (req, res) => {
 learningObjectController.findAllObjectHRUIDandIDs = () => {
     let res = []
     let dirCont = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION));
+
     dirCont = dirCont.filter((file) => {
         return file.charAt(0) != "."
     });
+
     dirCont.forEach(id => {
         let files = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id));
         files = files.map((f) => {
@@ -233,18 +236,20 @@ learningObjectController.writeHtmlFile = async (destination, htmlFile, htmlStrin
  * @param {array} files 
  * @param {string} destination - location for storage
  */
-learningObjectController.saveSourceFiles = async (files, destination) => {
+// learningObjectController.saveSourceFiles = async (files, destination) => {
+learningObjectController.saveSourceFiles = (files, destination) => {
     for (const elem of files) {
         let filename = path.join(destination, elem.originalname);
         mkdirp.sync(path.dirname(filename));
-        await new Promise((resolve) => {
-            fs.writeFile(filename, elem.buffer, function (err, data) {
-                if (err) {
-                    console.log(err);
-                }
-                resolve();
-            });
-        });
+        fs.writeFileSync(filename, elem.buffer);
+        // await new Promise((resolve) => {
+        //     fs.writeFile(filename, elem.buffer, function (err, data) {
+        //         if (err) {
+        //             console.log(err);
+        //         }
+        //         resolve();
+        //     });
+        // });
     }
 }
 
@@ -266,10 +271,10 @@ learningObjectController.saveSourceFiles = async (files, destination) => {
 learningObjectController.createLearningObject = async (req, res) => {
     logger.info("Trying to upload files");
     try {
-        await uploadFilesMiddleware(req, res);
-        for (let i = 0; i < req.files.length; i++) {
-            req.files[i].originalname = path.join(...req.files[i].originalname.split(path.sep).slice(1));
-        }
+        //await uploadFilesMiddleware(req, res);
+        // for (let i = 0; i < req.files.length; i++) {
+        //     req.files[i].originalname = path.join(...req.files[i].originalname.split(path.sep).slice(1));
+        // }
         logger.info("Extracting metadata...");
 
         // Extract metadata and the metadata filename from files (if there's a index.md file, the html filename and html string are also extracted)
@@ -280,16 +285,19 @@ learningObjectController.createLearningObject = async (req, res) => {
         logger.info("Validating metadata...");
         let ids = learningObjectController.findAllObjectHRUIDandIDs();
         let val = new MetadataValidator(metadata, ids);
+
         let valid;
 
         [metadata, valid] = val.validate();
 
+
         if (!valid) {
-            throw "The metadata is not correctly formatted. See user.log for more info."
+            throw new InvalidArgumentError("The metadata is not correctly formatted. See user.log for more info.")
         }
 
         // Create learning object
         const learningObject = new LearningObject(metadata);
+
 
         const id = learningObject['_id'].toString();
         let destination = path.join(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION), id); // Use unique learning object id to define storage location
@@ -300,34 +308,37 @@ learningObjectController.createLearningObject = async (req, res) => {
             // This is how we get the html filename and html string.
             // It also returns the nescessary files that need to be saved.
             [htmlString, resFiles] = learningObjectController.processFiles(req.files, learningObject.content_type, metadata);
+
             resFiles.push(metadataFile);
         } else {
             // If a index.md file is used, all other files need to be stored aswell because they can be used in the markdown
             htmlString = learningObjectController.processMarkdown(markdown);
+
             resFiles = req.files;
         }
 
         // Write html file
         learningObjectController.writeHtmlFile(destination, "index.html", htmlString);
 
+
         // Save all source files
         learningObjectController.saveSourceFiles(resFiles, destination);
 
         if (req.files.length <= 0) {
-            return res.send(`You must select at least 1 file.`);
+            //return res.send(`You must select at least 1 file.`);
         }
         UserLogger.info("The learning-object with hruid " + learningObject.hruid + " was created correctly with id " + id);
         let redirectpath = path.join("/", process.env.LEARNING_OBJECT_STORAGE_LOCATION, id);
-        return res.redirect(redirectpath);
+        //return res.redirect(redirectpath);
         //return res.sendfile(indexfile_html_full);
         //return res.send(`Files has been uploaded.`);
     } catch (error) {
-        logger.error(error);
+        logger.error(error.message);
 
         if (error.code === "LIMIT_UNEXPECTED_FILE") {
-            return res.send("Too many files to upload.");
+            //return res.send("Too many files to upload.");
         }
-        return res.send(`Error when trying upload many files: ${error}`);
+        //return res.send(`Error when trying upload many files: ${error}`);
     }
 };
 

@@ -26,7 +26,6 @@ class MarkdownProcessor extends Processor {
         try {
             html = DOMPurify.sanitize(marked(mdText), { ADD_TAGS: ["embed", "iframe"] });
         } catch (e) {
-            this.logger.error("Something went wrong with marked...")
             throw new InvalidArgumentError(e.message);
         }
         return html;

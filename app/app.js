@@ -3,6 +3,9 @@ import path from 'path'
 import Logger from './logger.js'
 import appRouter from './routes/app_router.js'
 import ltijs from "ltijs"
+import schedule from 'node-schedule'
+import { pullAndProcessRepository } from './utils/git.js'
+
 
 const logger = Logger.getLogger();
 const lti = ltijs.Provider;
@@ -27,10 +30,10 @@ lti.onConnect(async (token, req, res) => {
     return res.redirect('/static/html/test.html');
 })
 
-lti.onInvalidToken(async (req, res, next) => { 
+lti.onInvalidToken(async (req, res, next) => {
     console.log("Error")
     return res.status(401).send(res.locals.err)
-  }
+}
 )
 
 // When receiving deep linking request redirects to deep screen
@@ -74,6 +77,10 @@ app.use('/static', express.static(path.join(path.resolve(), 'app/static')));
 app.set('views', path.join(path.resolve(), 'app', 'views'));
 app.set('view engine', 'ejs');
 
+// a cronjob to pull the repository and process the learning-objects
+schedule.scheduleJob('*/10 * * * * *', function () {
+    pullAndProcessRepository(path.resolve("repos"));
+});
 
 
 export default app
