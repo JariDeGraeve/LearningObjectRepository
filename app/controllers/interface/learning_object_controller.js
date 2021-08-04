@@ -328,7 +328,7 @@ learningObjectController.createLearningObject = async (req, res) => {
             //return res.send(`You must select at least 1 file.`);
         }
         UserLogger.info("The learning-object with hruid " + learningObject.hruid + " was created correctly with id " + id);
-        let redirectpath = path.join("/", process.env.LEARNING_OBJECT_STORAGE_LOCATION, id);
+        //let redirectpath = path.join("/", process.env.LEARNING_OBJECT_STORAGE_LOCATION, id);
         //return res.redirect(redirectpath);
         //return res.sendfile(indexfile_html_full);
         //return res.send(`Files has been uploaded.`);
