@@ -24,14 +24,6 @@ let pullAndProcessRepository = async function (destination, repository, branch =
     const git = simpleGit({ baseDir: destination, binary: 'git' });
     try {
 
-        // .exec(() => console.log('Starting pull...'))
-        //     .pull((err, update) => {
-        //         if (update && update.summary.changes) {
-        //             require('child_process').exec('npm restart');
-        //         }
-        //     })
-        //     .exec(() => console.log('pull done.'));
-
         // If the destination is not yet a git repos, init git repos.
         await git
             .checkIsRepo('root')
@@ -60,29 +52,29 @@ let pullAndProcessRepository = async function (destination, repository, branch =
 
 
         // Process Files if there are changes in the directory
-        if (changes) {
-            // Check directory recursively for learning-object root-directories
-            let checkDirRec = (dir) => {
-                let dirCont = fs.readdirSync(dir);
-                if (dirCont.some(f => /.*index.md|.*metadata.(md|yaml)/.test(f))) {
-                    // Process directory if index or metadata file is present.
-                    let files = dirCont.map((f) => {
-                        return { originalname: f, buffer: fs.readFileSync(path.join(dir, f)) };
-                    });
-                    learningObjectController.createLearningObject({ files: files }, {})
-                } else {
-                    // Check subdirectories
-                    dirCont.forEach(f => {
-                        if (fs.lstatSync(path.join(dir, f)).isDirectory()) {
-                            checkDirRec(path.join(dir, f));
-                        }
-                    });
-                }
-            };
+        //if (changes) {    // Comment for easier debugging
+        // Check directory recursively for learning-object root-directories
+        let checkDirRec = (dir) => {
+            let dirCont = fs.readdirSync(dir);
+            if (dirCont.some(f => /.*index.md|.*metadata.(md|yaml)/.test(f))) {
+                // Process directory if index or metadata file is present.
+                let files = dirCont.map((f) => {
+                    return { originalname: f, buffer: fs.readFileSync(path.join(dir, f)) };
+                });
+                learningObjectController.createLearningObject({ files: files }, {})
+            } else {
+                // Check subdirectories
+                dirCont.forEach(f => {
+                    if (fs.lstatSync(path.join(dir, f)).isDirectory()) {
+                        checkDirRec(path.join(dir, f));
+                    }
+                });
+            }
+        };
 
-            // Start recursion by checking the root directory.
-            checkDirRec(destination);
-        }
+        // Start recursion by checking the root directory.
+        checkDirRec(destination);
+        // }
     } catch (e) {
         console.log(e)
     }

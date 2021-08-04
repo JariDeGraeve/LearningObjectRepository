@@ -7,6 +7,7 @@ const ProcessorContentType = {
     APPLICATION_PDF: "application/pdf",
 
     EXTERN: "extern",
+    BLOCKLY: "blockly",
 }
 
 export { ProcessorContentType }

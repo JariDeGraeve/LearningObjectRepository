@@ -116,6 +116,7 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find markdown file
                 if (ext == ".md") {
                     inputString = f.buffer.toString('utf8');
+                    // add supplimentary files to args? (eg: check if url to file exists)
                     resFiles = files;
                     return true;
                 }
@@ -143,6 +144,16 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                     inputString = f["originalname"]
                     args = metadata.args ? { width: metadata.args.width ? metadata.args.width : '100%', height: metadata.args.height ? metadata.args.height : '800px' } : { width: '100%', height: '800px' }
                     resFiles.push(f);
+                    return true;
+                }
+                break;
+            case ProcessorContentType.BLOCKLY:
+                // Find pdf file
+                if (ext == ".xml") {
+                    inputString = f.buffer.toString('utf8');
+                    args.file = f
+                    resFiles.push(f);
+                    console.log("Yes yes here we go")
                     return true;
                 }
                 break;

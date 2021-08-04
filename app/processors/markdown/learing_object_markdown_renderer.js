@@ -11,6 +11,7 @@ class LearningObjectMarkdownRenderer {
     audioPrefix = '@audio';
     videoPrefix = '@youtube';
     notebookPrefix = '@notebook';
+    blocklyPrefix = '@blockly';
 
     heading(text, level) {
         const escapedText = text.toLowerCase().replace(/[^\w]+/g, '-');
@@ -59,6 +60,11 @@ class LearningObjectMarkdownRenderer {
         } else if (href.startsWith(this.notebookPrefix)) {
             let url = "https://nbviewer.jupyter.org/urls/" + (href.split(/\/(.+)/, 2)[1]).replace(/^https?:\/\//, '');
             return proc.render(ProcessorContentType.EXTERN, url, { width: text.split(/,(.+)/, 2)[0], height: text.split(/,(.+)/, 2)[1] });
+
+        } else if (href.startsWith(this.blocklyPrefix)) {
+            return false;
+            //return proc.render(ProcessorContentType.BLOCKLY, href.split(/\/(.+)/, 2)[1]);
+
         } else {
             return false; // Let marked process the link
         }

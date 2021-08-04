@@ -6,7 +6,7 @@ import { ProcessorContentType } from "./content_type.js"
 import AudioProcessor from "./audio/audio_processor.js";
 import PdfProcessor from "./pdf/pdf_processor.js";
 import ExternProcessor from "./extern/extern_processor.js";
-import LearningObjectProcessor from "./learning_object/learing_object_processor.js";
+import BlocklyProcessor from "./blockly/blockly_processor.js";
 
 
 class ProcessingProxy {
@@ -20,6 +20,7 @@ class ProcessingProxy {
         this.processors[ProcessorContentType.APPLICATION_PDF] = new PdfProcessor();
 
         this.processors[ProcessorContentType.EXTERN] = new ExternProcessor();
+        this.processors[ProcessorContentType.BLOCKLY] = new BlocklyProcessor();
     }
 
     /**

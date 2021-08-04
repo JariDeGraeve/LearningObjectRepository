@@ -203,7 +203,7 @@ class MetadataValidator {
             }
 
             // existing content type
-            let types = ["text/plain", "text/markdown", "text/html", "image/image", "application/pdf", "audio/mpeg"];
+            let types = ["text/plain", "text/markdown", "text/html", "image/image", "application/pdf", "audio/mpeg", "blockly"];
             if (!types.includes(this.content_type)) {
                 let err = "- This content_type is not valid. Make sure the content type is one of the following: \n";
                 types.forEach(type => {
