@@ -107,7 +107,8 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find image file
                 if (ext.match(/\.(jpe?g)|(png)|(svg)$/)) {
                     inputString = f["originalname"]
-                    args = metadata.args ? { width: metadata.args.width ? metadata.args.width : '100%', height: metadata.args.height ? metadata.args.height : '800px' } : { width: '100%', height: '800px' }
+                    args = metadata.args ? { width: metadata.args.width , height: metadata.args.height } : { }
+
                     resFiles.push(f);
                     return true;
                 }
@@ -142,7 +143,7 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find pdf file
                 if (ext == ".pdf") {
                     inputString = f["originalname"]
-                    args = metadata.args ? { width: metadata.args.width ? metadata.args.width : '100%', height: metadata.args.height ? metadata.args.height : '800px' } : { width: '100%', height: '800px' }
+                    args = metadata.args ? { width: metadata.args.width , height: metadata.args.height } : { width: '100%', height: '800px' }
                     resFiles.push(f);
                     return true;
                 }
@@ -151,9 +152,9 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find pdf file
                 if (ext == ".xml") {
                     inputString = f.buffer.toString('utf8');
-                    args.file = f
+                    args = metadata.args ? { width: metadata.args.width , height: metadata.args.height } : { width: '600px', height: '480px' }
+                    // args.file = f
                     resFiles.push(f);
-                    console.log("Yes yes here we go")
                     return true;
                 }
                 break;

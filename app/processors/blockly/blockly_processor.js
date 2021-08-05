@@ -17,17 +17,48 @@ class BlocklyProcessor extends Processor {
      * @param {object} args Optional arguments specific to the render function of the BlocklyProcessor
      * @returns 
      */
-    render(blocklyXml, args = {}) {
-        // TODO: both script files are not passed correctly...
-        // currently: file:///Users/jari/Documents/Thuis/Vakantiejob%20UGent/LearningObjectRepository/storage/610aaf4e8719f64c1fa60f5f/blockly_compressed.js
-        // expected: file:///Users/jari/Documents/Thuis/Vakantiejob%20UGent/LearningObjectRepository/app/static/js/blockly_compressed.js
+    render(blocklyXml, args = { width: "600px", height: "480px", language: "en"}) {
+        if (!args.language || args.language == "") {
+            args.language = "en";
+        }
+        if (!args.width || args.width == "") {
+            args.width = "100%";
+        }
+        if (!args.height || args.height == "") {
+            args.height = "800px";
+        }
+        let regex = /inherit|initial|auto|\d+px|\d+%/
+        if (!args.width.match(regex) || !args.height.match(regex)) {
+            throw new InvalidArgumentError("The width and/or height of the pdf are not valid.");
+
+        }
         let html = `
-        <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
-        <script src="blockly_compressed.js"></script>
-        <script src="blocks_compressed.js"></script>
+        <div id="blocklyDiv" style="height: ${args.height}; width: ${args.width};"></div>
+        <script src="../../app/static/js/blockly_compressed.js"></script>
+        <script src="../../app/static/js/msg/${args.language}.js"></script>
+        <script src="../../app/static/js/msg2/${args.language}.js"></script>
+        <script src="../../app/static/js/blocks_compressed.js"></script>
+        <script src="../../app/static/js/blocks/arduino.js"></script>
+        <script src="../../app/static/js/blocks/comments.js"></script>
+        <script src="../../app/static/js/blocks/conveyor.js"></script>
+        <script src="../../app/static/js/blocks/drawingrobot.js"></script>
+        <script src="../../app/static/js/blocks/dwenguino_new.js"></script>
+        <script src="../../app/static/js/blocks/lists.js"></script>
+        <script src="../../app/static/js/blocks/procedures.js"></script>
+        <script src="../../app/static/js/blocks/socialrobot.js"></script>
+        <script src="../../app/static/js/blocks/variables_dynamic.js"></script>
+        <script src="../../app/static/js/blocks/variables.js"></script>
         <script>
-            let workspace = Blockly.inject('blocklyDiv', {});
-            Blockly.Xml.domToWorkspace("${blocklyXml}", workspace);
+            let workspace = Blockly.inject('blocklyDiv', {readOnly: true, scrollbars: true, zoom:
+         {controls: true,
+          wheel: true,
+          startScale: 1.0,
+          maxScale: 3,
+          minScale: 0.3,
+          scaleSpeed: 1.2,
+          pinch: true}});
+            var xml = Blockly.Xml.textToDom('${blocklyXml}');
+            Blockly.Xml.domToWorkspace(xml, workspace);
         </script>
         `
         return html;
