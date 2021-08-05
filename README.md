@@ -16,6 +16,7 @@ Create local .env file in project root with the correct configuration. These are
 - LEARNING_OBJECT_STORAGE_LOCATION = "storage"
 - DATABASE_URL=mongodb://localhost:27017/learing_object_test_database
 - ERASE_DATABASE_ON_SYNC=true
+- LEARNING_OBJECTS_GIT_REPOSITORY=https://github.com/dwengovzw/learning_content
 
 **Test**
 ```bash
