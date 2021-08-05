@@ -13,7 +13,8 @@ let logger = Logger.getLogger();
  * @param {string} repository - the url to the remote repository
  * @param {string} branch - the branch in the remote repository (default is 'main')
  */
-let pullAndProcessRepository = async function (destination, repository, branch = "main") {
+let pullAndProcessRepository = async function (destination, branch = "main") {
+    let repository = process.env.LEARNING_OBJECTS_GIT_REPOSITORY
     // Pull Git repos
 
     // If destination doesn't exist, make it
@@ -59,6 +60,7 @@ let pullAndProcessRepository = async function (destination, repository, branch =
             if (dirCont.some(f => /.*index.md|.*metadata.(md|yaml)/.test(f))) {
                 // Process directory if index or metadata file is present.
                 let files = dirCont.map((f) => {
+                    console.log(f);
                     return { originalname: f, buffer: fs.readFileSync(path.join(dir, f)) };
                 });
                 learningObjectController.createLearningObject({ files: files }, {})

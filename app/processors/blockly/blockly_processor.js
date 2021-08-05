@@ -17,23 +17,13 @@ class BlocklyProcessor extends Processor {
      * @param {object} args Optional arguments specific to the render function of the BlocklyProcessor
      * @returns 
      */
-    render(blocklyXml, args = { width: "600px", height: "480px", language: "en"}) {
+    render(blocklyXml, args = {language: "en"}) {
         if (!args.language || args.language == "") {
             args.language = "en";
         }
-        if (!args.width || args.width == "") {
-            args.width = "100%";
-        }
-        if (!args.height || args.height == "") {
-            args.height = "800px";
-        }
-        let regex = /inherit|initial|auto|\d+px|\d+%/
-        if (!args.width.match(regex) || !args.height.match(regex)) {
-            throw new InvalidArgumentError("The width and/or height of the pdf are not valid.");
-
-        }
+        
         let html = `
-        <div id="blocklyDiv" style="height: ${args.height}; width: ${args.width};"></div>
+        <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
         <script src="../../app/static/js/blockly_compressed.js"></script>
         <script src="../../app/static/js/msg/${args.language}.js"></script>
         <script src="../../app/static/js/msg2/${args.language}.js"></script>

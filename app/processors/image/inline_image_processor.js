@@ -20,18 +20,10 @@ class InlineImageProcessor extends Processor {
         if (typeof args.altText == 'undefined') {
             args.altText = "";
         }
-        let widthTag = ' width="' + args.width + '"'
-        let heightTag = ' height="' + args.height + '"'
-        if (typeof args.width == 'undefined') {
-            widthTag = "";
-        }
-        if (typeof args.height == 'undefined') {
-            heightTag = "";
-        }
         if (!isValidHttpUrl(imageUrl) && (!imageUrl || !imageUrl.match(/^(?!http.*$)[^.].*\.(jpe?g|png|svg)/))) {
             throw new InvalidArgumentError();
         } else {
-            return DOMPurify.sanitize(`<img src="${imageUrl}" alt="${args.altText}"${widthTag}${heightTag}>`);
+            return DOMPurify.sanitize(`<img src="${imageUrl}" alt="${args.altText}">`);
         }
     }
 }

@@ -80,7 +80,7 @@ app.set('view engine', 'ejs');
 // a cronjob to pull the repository and process the learning-objects
 // schedule.scheduleJob('0 0 * * *', function () {
 schedule.scheduleJob('*/10 * * * * *', function () {
-    pullAndProcessRepository(path.resolve("repos"), 'https://github.com/JariDeGraeve/learning-objects-test.git');
+    pullAndProcessRepository(path.resolve("repos"));
 });
 
 

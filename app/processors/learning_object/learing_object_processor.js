@@ -28,7 +28,6 @@ class LearningObjectProcessor extends Processor {
         let html;
         try {
             html = fs.readFileSync(filename, 'utf8')
-            console.log(html)
         } catch (err) {
             console.error(err)
         }

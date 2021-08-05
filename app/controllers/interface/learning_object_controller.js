@@ -143,7 +143,6 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find pdf file
                 if (ext == ".pdf") {
                     inputString = f["originalname"]
-                    args = metadata.args ? { width: metadata.args.width , height: metadata.args.height } : { width: '100%', height: '800px' }
                     resFiles.push(f);
                     return true;
                 }
@@ -152,8 +151,7 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find pdf file
                 if (ext == ".xml") {
                     inputString = f.buffer.toString('utf8');
-                    args = metadata.args ? { width: metadata.args.width , height: metadata.args.height } : { width: '600px', height: '480px' }
-                    // args.file = f
+                    args.language = metadata.language
                     resFiles.push(f);
                     return true;
                 }
@@ -250,6 +248,7 @@ learningObjectController.writeHtmlFile = async (destination, htmlFile, htmlStrin
  */
 // learningObjectController.saveSourceFiles = async (files, destination) => {
 learningObjectController.saveSourceFiles = (files, destination) => {
+    //TODO also save subdirs
     for (const elem of files) {
         let filename = path.join(destination, elem.originalname);
         mkdirp.sync(path.dirname(filename));
@@ -265,20 +264,7 @@ learningObjectController.saveSourceFiles = (files, destination) => {
     }
 }
 
-/*
-            TODO: process files:
-            -> look for main markdown file and extract metadata;
-            -> check validity of the different files;
-            -> if correct file structure/types:
-            -> Generate learning object based on metadata
-            -> Create storage location on disk for this learning object (use uuid)
-            -> Save files in that location
-            -> add uuid to metadata and save metadata to the database.
-            -> return rendered learning object to the user
 
-            -> If other type than md, look for metadata.md or metadata.yaml 
-            
-        */
 
 learningObjectController.createLearningObject = async (req, res) => {
     logger.info("Trying to upload files");
@@ -344,6 +330,10 @@ learningObjectController.createLearningObject = async (req, res) => {
         //return res.redirect(redirectpath);
         //return res.sendfile(indexfile_html_full);
         //return res.send(`Files has been uploaded.`);
+
+        // TODO: Add id to metadata and save to database
+
+
     } catch (error) {
         logger.error(error.message);
 

@@ -16,7 +16,7 @@ class AudioProcessor extends Processor {
      * @param {object} args Optional arguments specific to the render function of the AudioProcessor
      * @returns 
      */
-    render(audioUrl, args = {}) {
+    render(audioUrl, args = { type: "audio/mpeg"}) {
         if (!isValidHttpUrl(audioUrl) && (!audioUrl || !audioUrl.match(/^(?!http.*$)[^.].*\.mp3/))) {
             throw new InvalidArgumentError("The url for the audio-file is not correct.");
         } else if (!args.type || !this.types.includes(args.type)) {
