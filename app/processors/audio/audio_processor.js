@@ -2,6 +2,7 @@ import Processor from "../processor.js";
 import { isValidHttpUrl } from '../../utils/utils.js'
 import InvalidArgumentError from '../../utils/invalid_argument_error.js'
 import DOMPurify from 'isomorphic-dompurify';
+import UserLogger from '../../utils/user_logger.js'
 
 class AudioProcessor extends Processor {
 
@@ -16,7 +17,17 @@ class AudioProcessor extends Processor {
      * @param {object} args Optional arguments specific to the render function of the AudioProcessor
      * @returns 
      */
-    render(audioUrl, args = { type: "audio/mpeg"}) {
+    render(audioUrl, args = { type: "audio/mpeg", files: []}) {
+        if(!args.files || args.files.length <= 0){
+            UserLogger.error("The audio file cannot be found. Please check if the filename is spelled correctly.")
+            return "";
+        }
+        let filenames = args.files.map((f) => f.originalname);
+        if(!filenames.includes(audioUrl.split("/").pop())){
+            UserLogger.error("The audio file cannot be found. Please check if the filename is spelled correctly.")
+            return "";
+        }
+
         if (!isValidHttpUrl(audioUrl) && (!audioUrl || !audioUrl.match(/^(?!http.*$)[^.].*\.mp3/))) {
             throw new InvalidArgumentError("The url for the audio-file is not correct.");
         } else if (!args.type || !this.types.includes(args.type)) {

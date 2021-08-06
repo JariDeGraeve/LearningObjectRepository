@@ -9,11 +9,12 @@ import InvalidArgumentError from "../../utils/invalid_argument_error.js"
 
 class MarkdownProcessor extends Processor {
     logger = Logger.getLogger();
-    constructor() {
+    constructor(args = { files: [] }) {
         super();
         // A bit stupid but marked does not work with an instance of a class only with plain object
-        const renderer = new ObjectConverter().toJSON(new LearningObjectMarkdownRenderer());
+        const renderer = new ObjectConverter().toJSON(new LearningObjectMarkdownRenderer(args));
         marked.use({ renderer });
+
     }
 
     /**
@@ -36,7 +37,7 @@ class MarkdownProcessor extends Processor {
      * @param {string} mdTextWithYAMLMeta Markdown string with metadata. Compatible with jekyll (https://jekyllrb.com/docs/front-matter/)
      * @returns {object} {original input, metadata string, }
      */
-    stripYAMLMetaData(mdTextWithYAMLMeta) {
+    static stripYAMLMetaData(mdTextWithYAMLMeta) {
         let trimmedInput = mdTextWithYAMLMeta.trim();
         const metadataregex = /(?<=^---).+?(?=---)/s
         const mdregex = /(?<=---.*---).+?$/s

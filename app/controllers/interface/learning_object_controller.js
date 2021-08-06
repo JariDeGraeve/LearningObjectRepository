@@ -99,6 +99,7 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
     let inputString = "";
     let resFiles = [];
     let args = {};
+    let constrArgs = {};
     // Find the first file with the correct content type (+ define the inputstring)
     let file = filtered.find((f) => {
         let ext = path.extname(f.originalname);
@@ -118,6 +119,7 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 if (ext == ".md") {
                     inputString = f.buffer.toString('utf8');
                     // add supplimentary files to args? (eg: check if url to file exists)
+                    constrArgs.files = filtered;
                     resFiles = files;
                     return true;
                 }
@@ -134,6 +136,7 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find audio file
                 if (ext == ".mp3") {
                     inputString = f["originalname"]
+                    args.files = filtered;
                     args.type = "audio/mpeg"
                     resFiles.push(f);
                     return true;
@@ -143,6 +146,7 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find pdf file
                 if (ext == ".pdf") {
                     inputString = f["originalname"]
+                    args.files = filtered;
                     resFiles.push(f);
                     return true;
                 }
@@ -164,12 +168,16 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
         return false
     });
     logger.info("Processing file " + file["originalname"]);
-    let proc = new ProcessingProxy();
+    let proc = new ProcessingProxy(constrArgs);
     return [proc.render(contentType, inputString, args), resFiles];
 };
 
-learningObjectController.processMarkdown = (md) => {
-    let proc = new MarkdownProcessor();
+learningObjectController.processMarkdown = (md, files) => {
+    let filtered = files.filter((f) => {
+        let ignoreregex = /(.*index\.md)|(^\..*)$/;
+        return !f["originalname"].match(ignoreregex);
+    })
+    let proc = new MarkdownProcessor({files: filtered});
     return proc.render(md);
 };
 
@@ -185,9 +193,9 @@ learningObjectController.extractMetadata = (files) => {
 
         let mdString = indexfile.buffer.toString('utf8');   // Read index markdown file into string
 
-        let proc = new MarkdownProcessor();
+        // let proc = new MarkdownProcessor();
 
-        let splitdata = proc.stripYAMLMetaData(mdString);   // Strip metadata and markdown from eachother
+        let splitdata = MarkdownProcessor.stripYAMLMetaData(mdString);   // Strip metadata and markdown from eachother
 
         return [splitdata.metadata, indexfile, splitdata.markdown];
     } else {
@@ -198,8 +206,8 @@ learningObjectController.extractMetadata = (files) => {
             if (metadatafile.originalname.includes(".md")) {
                 // metadata.md
                 let mdString = metadatafile.buffer.toString('utf8');   // Read index markdown file into string
-                let proc = new MarkdownProcessor();
-                let splitdata = proc.stripYAMLMetaData(mdString);   // Strip metadata and markdown from eachother
+                // let proc = new MarkdownProcessor();
+                let splitdata = MarkdownProcessor.stripYAMLMetaData(mdString);   // Strip metadata and markdown from eachother
                 return [splitdata.metadata, metadatafile];
             } else {
                 // metadata.yaml
@@ -310,7 +318,7 @@ learningObjectController.createLearningObject = async (req, res) => {
             resFiles.push(metadataFile);
         } else {
             // If a index.md file is used, all other files need to be stored aswell because they can be used in the markdown
-            htmlString = learningObjectController.processMarkdown(markdown);
+            htmlString = learningObjectController.processMarkdown(markdown, req.files);
 
             resFiles = req.files;
         }

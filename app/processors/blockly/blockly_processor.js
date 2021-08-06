@@ -21,7 +21,6 @@ class BlocklyProcessor extends Processor {
         if (!args.language || args.language == "") {
             args.language = "en";
         }
-        
         let html = `
         <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
         <script src="../../app/static/js/blockly_compressed.js"></script>

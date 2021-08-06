@@ -10,11 +10,11 @@ import BlocklyProcessor from "./blockly/blockly_processor.js";
 
 
 class ProcessingProxy {
-    constructor() {
+    constructor(args = {}) {
         this.processors = {}
         this.processors[ProcessorContentType.IMAGE_INLINE] = new InlineImageProcessor();
         this.processors[ProcessorContentType.IMAGE_BLOCK] = new BlockImageProcessor();
-        this.processors[ProcessorContentType.TEXT_MARKDOWN] = new MarkdownProcessor();
+        this.processors[ProcessorContentType.TEXT_MARKDOWN] = new MarkdownProcessor(args);
         this.processors[ProcessorContentType.TEXT_PLAIN] = new TextProcessor();
         this.processors[ProcessorContentType.AUDIO_MPEG] = new AudioProcessor();
         this.processors[ProcessorContentType.APPLICATION_PDF] = new PdfProcessor();

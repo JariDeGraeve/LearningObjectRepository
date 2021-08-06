@@ -9,7 +9,6 @@ import path from "path"
 class LearningObjectProcessor extends Processor {
     constructor() {
         super();
-        this.processingProxy = new ProcessingProxy();
     }
 
     /**
