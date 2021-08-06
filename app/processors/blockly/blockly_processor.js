@@ -50,7 +50,7 @@ class BlocklyProcessor extends Processor {
             Blockly.Xml.domToWorkspace(xml, workspace);
         </script>
         `
-        return html;
+        return html; //TODO is not sanitized using DOMPurify.sanitize (problems with script tags)
     }
 }
 

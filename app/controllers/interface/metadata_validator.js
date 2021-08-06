@@ -52,7 +52,7 @@ class MetadataValidator {
             }
             // unique
             if (this.allHruids.includes(this.hruid)) {
-                return "- The hruid needs to be unique ";
+                return "- The hruid needs to be unique.\n";
             }
 
             // trim

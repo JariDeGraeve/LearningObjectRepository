@@ -52,7 +52,9 @@ learningObjectController.findAllObjectHRUIDandIDs = () => {
 
     dirCont.forEach(id => {
         let files = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id));
-        files = files.map((f) => {
+        files = files
+        .filter((f)=> fs.lstatSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)).isFile())
+        .map((f) => {
             return { originalname: f, buffer: fs.readFileSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)) };
         });
         let [metadata] = learningObjectController.extractMetadata(files)
@@ -206,8 +208,6 @@ learningObjectController.extractMetadata = (files) => {
 
         let mdString = indexfile.buffer.toString('utf8');   // Read index markdown file into string
 
-        // let proc = new MarkdownProcessor();
-
         let splitdata = MarkdownProcessor.stripYAMLMetaData(mdString);   // Strip metadata and markdown from eachother
 
         return [splitdata.metadata, indexfile, splitdata.markdown];
@@ -219,7 +219,6 @@ learningObjectController.extractMetadata = (files) => {
             if (metadatafile.originalname.includes(".md")) {
                 // metadata.md
                 let mdString = metadatafile.buffer.toString('utf8');   // Read index markdown file into string
-                // let proc = new MarkdownProcessor();
                 let splitdata = MarkdownProcessor.stripYAMLMetaData(mdString);   // Strip metadata and markdown from eachother
                 return [splitdata.metadata, metadatafile];
             } else {
@@ -267,13 +266,17 @@ learningObjectController.writeHtmlFile = async (destination, htmlFile, htmlStrin
  * @param {array} files 
  * @param {string} destination - location for storage
  */
-// learningObjectController.saveSourceFiles = async (files, destination) => {
 learningObjectController.saveSourceFiles = (files, destination) => {
-    //TODO also save subdirs
     for (const elem of files) {
         let filename = path.join(destination, elem.originalname);
+
         mkdirp.sync(path.dirname(filename));
-        fs.writeFileSync(filename, elem.buffer);
+        if(elem.isDir){
+            // save subdirectory
+            learningObjectController.saveSourceFiles(elem.sub, path.join(destination,  elem.originalname));
+        } else {
+            fs.writeFileSync(filename, elem.buffer);
+        }
     }
 }
 
