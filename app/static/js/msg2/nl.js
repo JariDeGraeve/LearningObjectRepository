@@ -145,7 +145,7 @@ var MSG = {
   socialRobotSoundSensorBlockTooltip: "",
   socialRobotTouchSensorBlock: "aanraaksensor %1 %2 %3 pin %4",
   socialRobotTouchSensorBlockTooltip: "",
-  socialRobotButtonBlock: "Button %1 %2 %3 pin %4",
+  socialRobotButtonSensorBlock: "Knop %1 %2 %3 pin %4",
   socialRobotButtonBlockTooltip: "",
   socialrobotSetPinState: "zet %1 %2",
   socialrobotServoBlock: "servomotor %1 %2 %3 pin %4 hoek %5",
@@ -207,7 +207,7 @@ var MSG = {
   delete: "Verwijder",
   restore: "Herstellen",
   open: "Open",
-  variablesDeclareSetInt: "set %1 to number %2",
+  variablesDeclareSetInt: "stel %1 in op getal %2",
 
 };
 
@@ -1015,3 +1015,5 @@ MSG.conveyor = {
   isSimilar: "lijkt op",
   withDifference: "met een speling van %3"
 }
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

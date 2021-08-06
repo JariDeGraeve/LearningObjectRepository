@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "Kunde inte läsa din sparade fil. Den skapades kanske med en annan version av Blockly?",
   badXml: "Fel vid parsning av XML:\n%1\n\nKlicka på 'OK' för att strunta i dina ändringar eller 'Avbryt' för att fortsätta redigera XML-koden."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

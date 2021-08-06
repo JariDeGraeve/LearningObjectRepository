@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "Fail simpanan anda tidak dapat dimuatkan. Jangan-jangan ia dicipta dengan versi Blockly yang berlainan?",
   badXml: "Ralat ketika menghuraikan XML:\n%1\n\nPilih 'OK' untuk melucutkan suntingan anda atau 'Batal' untuk bersambung menyunting XML-nya."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

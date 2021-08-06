@@ -660,3 +660,5 @@ MSG_FALLBACK.conveyor = {
   sensors: "RGB color sensors",
   buttons: "Buttons"
 }
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

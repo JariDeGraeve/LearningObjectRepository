@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "Sistemul nu a putut încărca fișierul salvat. Poate că a fost creat cu o altă versiune de Blockly?",
   badXml: "Eroare de parsare XML:\n%1\n\nAlege „OK” pentru a renunța la modificările efectuate sau „Revocare” pentru a modifica în continuare fișierul XML."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

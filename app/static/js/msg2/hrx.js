@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "Dein gespeicherte Datei könnt net gelood sin. Vielleicht woard se mit ener annre Version von Blockly erstellt.",
   badXml: "Fehler beim Parse von XML:\n%1\n\nWähle 'OK' zum Verwerfe von deiner Ändrunge orrer 'Abbreche' zum XML weiter beoorbeite."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

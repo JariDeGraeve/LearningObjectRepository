@@ -881,3 +881,4 @@ MSG.validator = {
   errRequiredFields: "Je hebt niet alle velden ingevuld.",
   errRoleInvalid: "De opgegeven rol is niet geldig."
 };
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

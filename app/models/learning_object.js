@@ -81,6 +81,10 @@ const learningObjectSchema = new mongoose.Schema({
     content_location: {
         type: String,
         required: true
+    },
+    estimated_time: {
+        type: Number,
+        required: true
     }
 
 

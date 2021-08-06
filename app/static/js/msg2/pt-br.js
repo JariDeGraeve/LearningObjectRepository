@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "Não foi possível carregar seu arquivo salvo. Talvez ele tenha sido criado com uma versão diferente do Blockly?",
   badXml: "Erro de análise XML:\n%1\n\nSelecione 'OK' para abandonar suas mudanças ou 'Cancelar' para editar o XML."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

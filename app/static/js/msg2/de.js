@@ -228,7 +228,7 @@ var MSG = {
   socialRobotSoundSensorBlockTooltip: "",
   socialRobotTouchSensorBlock: "Berührungssensor %1 %2 %3 Stift %4",
   socialRobotTouchSensorBlockTooltip: "",
-  socialRobotButtonBlock: "Taste %1 %2 %3 Stift %4",
+  socialRobotButtonSensorBlock: "Taste %1 %2 %3 Stift %4",
   socialRobotButtonBlockTooltip: "",
   socialrobotSetPinState: "Setz %1 %2",
   socialrobotServoBlock: "servomotor %1 %2 %3 Stift %4 Ecke %5",
@@ -985,3 +985,5 @@ MSG.tutorials.socialrobot['hello'].answers = [
   "Antwort A",
   "Antwort B"
 ];
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

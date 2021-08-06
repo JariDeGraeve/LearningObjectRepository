@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "Nepodařilo se uložit vás soubor.  Pravděpodobně byl vytvořen jinou verzí Blockly?",
   badXml: "Chyba parsování XML:\n%1\n\nVybrat \"OK\" pro zahození vašich změn nebo 'Cancel' k dalšímu upravování XML."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

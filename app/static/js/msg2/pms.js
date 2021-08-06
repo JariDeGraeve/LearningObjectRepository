@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "A l'é nen podusse carié so archivi salvà. Miraco a l'é stàit creà con na version diferenta ëd Blockly?",
   badXml: "Eror d'anàlisi dl'XML:\n%1\n\nSelessioné 'Va bin' për lassé perde toe modìfiche o 'Anulé' për modifiché ancora l'XML."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

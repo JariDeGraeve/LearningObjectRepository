@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "ngogh nablIj pollu'pu'bogh chu'qa'laHbe' vay'.  chaq pollu'pu'DI' ghunmeH ngogh pIm lo'lu'pu'.",
   badXml: "XML yajchu'laHbe' vay':\n%1\n\nchoHmeylIj DalonmeH \"ruch\" yIwIv pagh XML DachoHqa'meH \"qIl\" yIwIv."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

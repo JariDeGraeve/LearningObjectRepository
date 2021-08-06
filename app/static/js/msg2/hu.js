@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "A programodat nem lehet betölteni.  Elképzelhető, hogy a Blockly egy másik verziójában készült?",
   badXml: "Hiba az XML feldolgozásakor:\n%1\n\nVáltozások elvetése?"
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

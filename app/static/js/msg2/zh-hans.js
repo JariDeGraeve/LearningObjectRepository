@@ -501,3 +501,4 @@ MSG.validator = {
 };
 
 
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

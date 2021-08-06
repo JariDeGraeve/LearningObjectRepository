@@ -120,7 +120,7 @@ var MSG = {
   socialRobotSoundSensorBlockTooltip: "",
   socialRobotTouchSensorBlock: "Touch sensor %1 %2 %3 pin %4",
   socialRobotTouchSensorBlockTooltip: "",
-  socialRobotButtonBlock: "Button %1 %2 %3 pin %4",
+  socialRobotButtonSensorBlock: "Button %1 %2 %3 pin %4",
   socialRobotButtonBlockTooltip: "",
   socialrobotSetPinState: "Set %1 %2",
   socialrobotServoBlock: "Σερβοκινητήρας %1 %2 %3  κανάλι %4 Ακροδέκτης %5",
@@ -534,3 +534,5 @@ MSG.validator = {
   errGender: "Επίλεξε το φύλο σου.",
   errActivityId: "Ο τίτλος της εργασίας σου δε μπορεί να είναι κενός."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

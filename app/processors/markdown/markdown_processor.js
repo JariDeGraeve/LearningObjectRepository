@@ -9,7 +9,7 @@ import InvalidArgumentError from "../../utils/invalid_argument_error.js"
 
 class MarkdownProcessor extends Processor {
     logger = Logger.getLogger();
-    constructor(args = { files: [] }) {
+    constructor(args = { files: [], language: "en" }) {
         super();
         // A bit stupid but marked does not work with an instance of a class only with plain object
         const renderer = new ObjectConverter().toJSON(new LearningObjectMarkdownRenderer(args));

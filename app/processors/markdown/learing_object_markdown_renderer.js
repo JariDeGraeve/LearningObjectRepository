@@ -14,7 +14,7 @@ class LearningObjectMarkdownRenderer {
     notebookPrefix = '@notebook';
     blocklyPrefix = '@blockly';
 
-    constructor(args = { files: [] }){
+    constructor(args = { files: [], language: "en"}){
         this.args = args;
     }
 
@@ -47,7 +47,7 @@ class LearningObjectMarkdownRenderer {
     // When the syntax for an image is used => ![text](href "title")
     // render a learning object, pdf, audio or video if a prefix is used.
     image(href, title, text) {
-        let proc = new ProcessingProxy({files: this.args.files});
+        let proc = new ProcessingProxy({files: this.args.files, language: this.args.language});
 
         if (href.startsWith(this.learingObjectPrefix)) {
             let lproc = new LearningObjectProcessor();
@@ -72,7 +72,7 @@ class LearningObjectMarkdownRenderer {
                     return f.originalname == href.split(/\/(.+)/, 2)[1];
                 });
                 if(file){
-                    return proc.render(ProcessorContentType.BLOCKLY, file.buffer, { language: "en" });
+                    return proc.render(ProcessorContentType.BLOCKLY, file.buffer, { language: this.args.language });
                 }
             }
             UserLogger.error("The blockly preview could not load. Are you sure the correct xml file was passed?")

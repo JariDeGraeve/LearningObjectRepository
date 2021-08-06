@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "Non potzu carrigai su file sarvau. Fortzis est stètiu fatu cun d-una versioni diferenti de Blockly?",
   badXml: "Errori in s'anàlisi XML:\n%1\n\nCraca 'OK' po perdi is mudàntzias 'Anudda' po sighì a scriri su XML."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

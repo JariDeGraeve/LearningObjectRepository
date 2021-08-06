@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "Ne c'haller ket kargañ ho restr enrollet. Marteze e oa bet krouet gant ur stumm disheñvel eus Blockly ?",
   badXml: "Fazi dielfennañ XML :\n%1\n\nDibabit \"Mat eo\" evit dilezel ar c'hemmoù-se pe \"Nullañ\" evit kemmañ an XML c'hoazh."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

@@ -118,7 +118,7 @@ var MSG = {
   socialRobotSoundSensorBlockTooltip: "",
   socialRobotTouchSensorBlock: "Sensore tattile %1 %2 %3 pin %4",
   socialRobotTouchSensorBlockTooltip: "",
-  socialRobotButtonBlock: "Pulsante %1 %2 %3 pin %4",
+  socialRobotButtonSensorBlock: "Pulsante %1 %2 %3 pin %4",
   socialRobotButtonBlockTooltip: "",
   socialrobotSetPinState: "Fissa %1 %2",
   socialrobotServoBlock: "Motore servo %1 %2 %3 pin %4 angolo %5",
@@ -467,3 +467,5 @@ MSG.validator = {
   errRequiredFields: "Je hebt niet alle velden ingevuld.",
   errRoleInvalid: "De opgegeven rol is niet geldig."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

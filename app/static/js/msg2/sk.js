@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "Nebolo možné načítať uložený súbor. Možno bol vytvorený v inej verzii Blocky.",
   badXml: "Chyba pri parsovaní XML:\n%1\n\nStlačte 'OK' ak chcete zrušiť zmeny alebo 'Zrušiť' pre pokračovanie v úpravách XML."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

@@ -22,3 +22,5 @@ var MSG = {
   xmlError: "Gat ekki hlaðið vistuðu skrána þína. Var hún kannske búin til í annarri útgáfu af Blockly?",
   badXml: "Villa við úrvinnslu XML:\n%1\n\nVeldu 'Í lagi' til að sleppa breytingum eða 'Hætta við' til að halda áfram með XML."
 };
+
+Blockly.Msg = { ...Blockly.Msg, ...MSG };

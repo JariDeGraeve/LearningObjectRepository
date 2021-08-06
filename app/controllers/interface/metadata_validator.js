@@ -25,6 +25,7 @@ class MetadataValidator {
         this.difficulty = _metadata.difficulty;
         this.return_value = _metadata.return_value;
         this.content_location = _metadata.content_location;
+        this.estimated_time = _metadata.estimated_time;
     }
 
     validators = {
@@ -294,6 +295,18 @@ class MetadataValidator {
             // type String
             if (typeof this.content_location != "string") {
                 return "- The content_location parameter needs to be of type string.\n";
+            }
+        },
+
+        estimated_time() {
+            // required
+            if (this.estimated_time == undefined) {
+                return "- A parameter estimated_time is required.\n";
+            }
+
+            // type Number
+            if (typeof this.estimated_time != "number") {
+                return "- The estimated_time parameter needs to be of type number.\n";
             }
         }
     }

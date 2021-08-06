@@ -38,6 +38,10 @@ learningObjectController.getAllLearningObjects = (req, res) => {
     });
 };
 
+/**
+ * Finds all hruid's and id's from existing learning-objects
+ * @returns array of objects with id, hruid and url to learning object. It also contains a boolean to check if object is available
+ */
 learningObjectController.findAllObjectHRUIDandIDs = () => {
     let res = []
     let dirCont = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION));
@@ -118,8 +122,9 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find markdown file
                 if (ext == ".md") {
                     inputString = f.buffer.toString('utf8');
-                    // add supplimentary files to args? (eg: check if url to file exists)
+                    // add files to contstructor args (passed to renderer to check if referenced files exist)
                     constrArgs.files = filtered;
+                    constrArgs.language = metadata.language;
                     resFiles = files;
                     return true;
                 }
@@ -136,6 +141,7 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find audio file
                 if (ext == ".mp3") {
                     inputString = f["originalname"]
+                    // add files to args to check if file exists
                     args.files = filtered;
                     args.type = "audio/mpeg"
                     resFiles.push(f);
@@ -146,6 +152,7 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find pdf file
                 if (ext == ".pdf") {
                     inputString = f["originalname"]
+                    // add files to args to check if file exists
                     args.files = filtered;
                     resFiles.push(f);
                     return true;
@@ -172,12 +179,18 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
     return [proc.render(contentType, inputString, args), resFiles];
 };
 
-learningObjectController.processMarkdown = (md, files) => {
+/**
+ * 
+ * @param {string} md - markdown that needs to be processed (from index.md)
+ * @param {array} files - all files (need to be passed for checking purposes)
+ * @returns 
+ */
+learningObjectController.processMarkdown = (md, files, language) => {
     let filtered = files.filter((f) => {
         let ignoreregex = /(.*index\.md)|(^\..*)$/;
         return !f["originalname"].match(ignoreregex);
     })
-    let proc = new MarkdownProcessor({files: filtered});
+    let proc = new MarkdownProcessor({files: filtered, language: language});
     return proc.render(md);
 };
 
@@ -261,14 +274,6 @@ learningObjectController.saveSourceFiles = (files, destination) => {
         let filename = path.join(destination, elem.originalname);
         mkdirp.sync(path.dirname(filename));
         fs.writeFileSync(filename, elem.buffer);
-        // await new Promise((resolve) => {
-        //     fs.writeFile(filename, elem.buffer, function (err, data) {
-        //         if (err) {
-        //             console.log(err);
-        //         }
-        //         resolve();
-        //     });
-        // });
     }
 }
 
@@ -318,7 +323,7 @@ learningObjectController.createLearningObject = async (req, res) => {
             resFiles.push(metadataFile);
         } else {
             // If a index.md file is used, all other files need to be stored aswell because they can be used in the markdown
-            htmlString = learningObjectController.processMarkdown(markdown, req.files);
+            htmlString = learningObjectController.processMarkdown(markdown, req.files, metadata.language);
 
             resFiles = req.files;
         }
