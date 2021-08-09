@@ -32,9 +32,13 @@ learningObjectController.getCreateLearningObject = (req, res) => {
 learningObjectController.getAllLearningObjects = (req, res) => {
     let objects = learningObjectController.findAllObjectHRUIDandIDs();
 
+    let sortHruid = (a, b) => a.hruid < b.hruid ? -1 : a.hruid > b.hruid ? 1 : 0
+    let sortLanguage = (a, b) => a.language < b.language ? -1 : a.language > b.language ? 1 : 0
+    let sortVersion = (a, b) => a.version < b.version ? -1 : a.version > b.version ? 1 : 0
+
     res.render('interface/learning_object/learning_object.all.ejs', {
         hello: "Hello learning object!",
-        objects: objects
+        objects: objects.sort((a, b) => sortHruid(a, b) || sortLanguage(a, b) || sortVersion(a, b))
     });
 };
 
@@ -59,7 +63,7 @@ learningObjectController.findAllObjectHRUIDandIDs = () => {
             });
         let [metadata] = learningObjectController.extractMetadata(files)
         let url = path.join("/api/learningObject/getContent/", id);
-        res.push({ id: id, hruid: metadata.hruid, available: metadata.available, url: url });
+        res.push({ id: id, hruid: metadata.hruid, language: metadata.language, version: metadata.version, available: metadata.available, url: url });
     });
     return res;
 }
@@ -310,12 +314,17 @@ learningObjectController.createLearningObject = async (req, res) => {
         if (!valid) {
             throw new InvalidArgumentError("The metadata is not correctly formatted. See user.log for more info.")
         }
-
-        // Create learning object
-        const learningObject = new LearningObject(metadata);
-
-
-        const id = learningObject['_id'].toString();
+        let existing = ids.find((o) => o.hruid == metadata.hruid && o.language == metadata.language && o.version == metadata.version)
+        let id;
+        if (existing) {
+            // hruid, language and version need to be uniqe => update existing object
+            id = existing.id;
+            // update metadata in database
+        } else {
+            // Create learning object
+            const learningObject = new LearningObject(metadata);
+            id = learningObject['_id'].toString();
+        }
         let destination = path.join(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION), id); // Use unique learning object id to define storage location
         let resFiles;
         let htmlString
@@ -323,7 +332,7 @@ learningObjectController.createLearningObject = async (req, res) => {
             // If the metadata comes from a metadata.md or metadata.yaml file the correct content file needs to be processed
             // This is how we get the html filename and html string.
             // It also returns the nescessary files that need to be saved.
-            [htmlString, resFiles] = learningObjectController.processFiles(req.files, learningObject.content_type, metadata);
+            [htmlString, resFiles] = learningObjectController.processFiles(req.files, metadata.content_type, metadata);
 
             resFiles.push(metadataFile);
         } else {
@@ -340,14 +349,13 @@ learningObjectController.createLearningObject = async (req, res) => {
         // Save all source files
         learningObjectController.saveSourceFiles(resFiles, destination);
 
-        if (req.files.length <= 0) {
-            //return res.send(`You must select at least 1 file.`);
+        if (existing) {
+            UserLogger.info("The learning-object with hruid '" + metadata.hruid + "' and id '" + id + "' was updated correctly");
+
+        } else {
+            UserLogger.info("The learning-object with hruid '" + metadata.hruid + "' was created correctly with id " + id);
+
         }
-        UserLogger.info("The learning-object with hruid " + learningObject.hruid + " was created correctly with id " + id);
-        //let redirectpath = path.join("/", process.env.LEARNING_OBJECT_STORAGE_LOCATION, id);
-        //return res.redirect(redirectpath);
-        //return res.sendfile(indexfile_html_full);
-        //return res.send(`Files has been uploaded.`);
 
         // TODO: Add id to metadata and save to database
 

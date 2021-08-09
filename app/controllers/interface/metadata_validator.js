@@ -5,8 +5,8 @@ import UserLogger from '../../utils/user_logger.js'
 class MetadataValidator {
 
     constructor(_metadata, _ids) {
-        this.allHruids = _ids.map((id) => {
-            return id.hruid;
+        this.existingObjects = _ids.map((o) => {
+            return { hruid: o.hruid, language: o.language, version: o.version };
         })
         this.metadata = _metadata;
         this.uuid = _metadata.uuid;
@@ -49,10 +49,6 @@ class MetadataValidator {
             // type String
             if (typeof this.hruid != "string") {
                 return "- The hruid needs to be of type string.\n";
-            }
-            // unique
-            if (this.allHruids.includes(this.hruid)) {
-                return "- The hruid needs to be unique.\n";
             }
 
             // trim

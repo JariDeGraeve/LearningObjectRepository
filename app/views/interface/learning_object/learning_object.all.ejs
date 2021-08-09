@@ -18,6 +18,8 @@
         <table style="width: 75%;">
           <tr>
             <th>hruid</th>
+            <th>language</th>
+            <th>version</th>
             <th>id</th>
             <th>available</th>
           </tr>
@@ -25,6 +27,12 @@
             <tr>
               <td>
                 <%= obj.hruid %>
+              </td>
+              <td>
+                <%= obj.language %>
+              </td>
+              <td>
+                <%= obj.version %>
               </td>
               <td>
                 <a href=<%=obj.url %> > <%= obj.id %></a>
