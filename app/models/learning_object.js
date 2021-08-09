@@ -14,7 +14,6 @@ const learningObjectSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        unique: true
     },
     version: {
         type: Number,
@@ -106,21 +105,21 @@ learningObjectSchema.index({ uuid: 1, version: 1, language: 1 }, { unique: true 
 });*/
 
 // Enforce new version on save
-learningObjectSchema.pre('save', function (next) {
-    if (this.language) {
-        this.language = this.language.toUpperCase();
-    }
-    this.constructor.findOne({ uuid: this.uuid }).sort('-version').exec((err, prevVersion) => {
-        if (err) new Logger().error(err);
-        // If no document with the specified uuid, set version to 0 else increment version
-        if (!prevVersion) {
-            this.version = 0;
-        } else {
-            this.version = prevVersion.version + 1;
-        }
-        next();
-    });
-});
+// learningObjectSchema.pre('save', function (next) {
+//     if (this.language) {
+//         this.language = this.language.toUpperCase();
+//     }
+//     this.constructor.findOne({ uuid: this.uuid }).sort('-version').exec((err, prevVersion) => {
+//         if (err) new Logger().error(err);
+//         // If no document with the specified uuid, set version to 0 else increment version
+//         if (!prevVersion) {
+//             this.version = 0;
+//         } else {
+//             this.version = prevVersion.version + 1;
+//         }
+//         next();
+//     });
+// });
 
 const LearningObject = mongoose.model('LearningObject', learningObjectSchema);
 

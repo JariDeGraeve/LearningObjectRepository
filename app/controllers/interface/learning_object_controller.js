@@ -30,8 +30,8 @@ learningObjectController.getCreateLearningObject = (req, res) => {
     });
 };
 
-learningObjectController.getAllLearningObjects = (req, res) => {
-    let objects = learningObjectController.findAllObjectHRUIDandIDs();
+learningObjectController.getAllLearningObjects = async (req, res) => {
+    let objects = await learningObjectController.findAllObjects();
 
     let sortHruid = (a, b) => a.hruid < b.hruid ? -1 : a.hruid > b.hruid ? 1 : 0
     let sortLanguage = (a, b) => a.language < b.language ? -1 : a.language > b.language ? 1 : 0
@@ -47,26 +47,46 @@ learningObjectController.getAllLearningObjects = (req, res) => {
  * Finds all hruid's and id's from existing learning-objects
  * @returns array of objects with id, hruid and url to learning object. It also contains a boolean to check if object is available
  */
-learningObjectController.findAllObjectHRUIDandIDs = () => {
-    let res = []
-    let dirCont = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION));
+learningObjectController.findAllObjects = async () => {
+    // let res = []
+    // let dirCont = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION));
 
-    dirCont = dirCont.filter((file) => {
-        return file.charAt(0) != "."
+    // dirCont = dirCont.filter((file) => {
+    //     return file.charAt(0) != "."
+    // });
+
+    // dirCont.forEach(id => {
+    //     let files = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id));
+    //     files = files
+    //         .filter((f) => fs.lstatSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)).isFile())
+    //         .map((f) => {
+    //             return { originalname: f, buffer: fs.readFileSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)) };
+    //         });
+    //     let [metadata] = learningObjectController.extractMetadata(files)
+    //     let url = path.join("/api/learningObject/getContent/", id);
+    //     res.push({ id: id, hruid: metadata.hruid, language: metadata.language, version: metadata.version, available: metadata.available, url: url });
+    // });
+    // return res;
+    let repos = new LearningObjectRepository();
+    let objects;
+    // repos.findAll((err, res) => {
+    //     objects = res;
+    //     //console.log(res)
+    // });
+    await new Promise((resolve) => {
+        repos.findAll((err, res) => {
+            if (err) {
+                logger.error("Could not retrieve all objects from database: " + err.message);
+            }
+            objects = res;
+            resolve();
+        })
     });
 
-    dirCont.forEach(id => {
-        let files = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id));
-        files = files
-            .filter((f) => fs.lstatSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)).isFile())
-            .map((f) => {
-                return { originalname: f, buffer: fs.readFileSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)) };
-            });
-        let [metadata] = learningObjectController.extractMetadata(files)
-        let url = path.join("/api/learningObject/getContent/", id);
-        res.push({ id: id, hruid: metadata.hruid, language: metadata.language, version: metadata.version, available: metadata.available, url: url });
-    });
-    return res;
+    let d = objects.map((obj) => { return { id: obj._id.toString(), hruid: obj.hruid, language: obj.language, version: obj.version, available: obj.available, url: path.join("/api/learningObject/getContent/", obj._id.toString()) } });
+    console.log(d);
+    return (d)
+
 }
 
 learningObjectController.findMarkdownIndex = (files) => {
@@ -298,13 +318,14 @@ learningObjectController.createLearningObject = async (req, res) => {
         let [metadata, metadataFile, markdown] = learningObjectController.extractMetadata(req.files);
 
         // Validate metadata
-        let ids = learningObjectController.findAllObjectHRUIDandIDs();
+        let ids = await learningObjectController.findAllObjects();
+        console.log("-----------2--------------")
+        console.log(ids);
         let val = new MetadataValidator(metadata, ids);
 
         let valid;
 
         [metadata, valid] = val.validate();
-
 
         if (!valid) {
             throw new InvalidArgumentError("The metadata is not correctly formatted. See user.log for more info.")
@@ -314,15 +335,31 @@ learningObjectController.createLearningObject = async (req, res) => {
         let id;
         let repos = new LearningObjectRepository();
         let dbError = false;
+        console.log(existing)
+        console.log(metadata);
+
         if (existing) {
             // hruid, language and version need to be uniqe => update existing object
+            //const learningObject = new LearningObject(metadata);
+            //learningObject['_id'] = existing.id;
             id = existing.id;
             // update metadata in database
+            await new Promise((resolve) => {
+                repos.update(id, (err) => {
+                    if (err) {
+                        logger.error("The object with hruid '" + learningObject.hruid + "' could not be updated: " + err.message);
+                        UserLogger.error("The object with hruid '" + learningObject.hruid + "' could not be updated due to an error with the database or with the metadata.")
+                        dbError = true;
+                    }
+                    logger.info("The metadata for the object with hruid '" + learningObject.hruid + "' has been updated correctly.");
+                    resolve();
+                })
+            });
         } else {
             // Create learning object
             const learningObject = new LearningObject(metadata);
             id = learningObject['_id'].toString();
-
+            // save metadata in database
             await new Promise((resolve) => {
                 repos.save(learningObject, (err) => {
                     if (err) {
@@ -330,7 +367,7 @@ learningObjectController.createLearningObject = async (req, res) => {
                         UserLogger.error("The object with hruid '" + learningObject.hruid + "' could not be saved due to an error with the database or with the metadata.")
                         dbError = true;
                     }
-                    logger.info("The object with hruid '" + learningObject.hruid + "' has been saved correctly.");
+                    logger.info("The metadata for the object with hruid '" + learningObject.hruid + "' has been saved correctly.");
                     resolve();
                 })
             });
@@ -356,7 +393,6 @@ learningObjectController.createLearningObject = async (req, res) => {
 
             // Write html file
             learningObjectController.writeHtmlFile(destination, "index.html", htmlString);
-
 
             // Save all source files
             learningObjectController.saveSourceFiles(resFiles, destination);
