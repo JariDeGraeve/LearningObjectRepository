@@ -13,6 +13,7 @@ import yaml from "js-yaml"
 import MetadataValidator from "./metadata_validator.js"
 import UserLogger from '../../utils/user_logger.js'
 import InvalidArgumentError from "../../utils/invalid_argument_error.js"
+import LearningObjectRepository from "../../repository/learning_object_repository.js"
 
 
 let logger = Logger.getLogger()
@@ -289,20 +290,14 @@ learningObjectController.saveSourceFiles = (files, destination) => {
 
 
 learningObjectController.createLearningObject = async (req, res) => {
-    logger.info("Trying to upload files");
+    logger.info("Trying to create learning object");
     try {
         //await uploadFilesMiddleware(req, res);
-        // for (let i = 0; i < req.files.length; i++) {
-        //     req.files[i].originalname = path.join(...req.files[i].originalname.split(path.sep).slice(1));
-        // }
-        logger.info("Extracting metadata...");
 
         // Extract metadata and the metadata filename from files (if there's a index.md file, the html filename and html string are also extracted)
         let [metadata, metadataFile, markdown] = learningObjectController.extractMetadata(req.files);
-        logger.info("Metadata found in " + metadataFile.originalname);
 
         // Validate metadata
-        logger.info("Validating metadata...");
         let ids = learningObjectController.findAllObjectHRUIDandIDs();
         let val = new MetadataValidator(metadata, ids);
 
@@ -314,8 +309,11 @@ learningObjectController.createLearningObject = async (req, res) => {
         if (!valid) {
             throw new InvalidArgumentError("The metadata is not correctly formatted. See user.log for more info.")
         }
+        logger.info("Correct metadata for learning object with hruid '" + metadata.hruid + "' found in '" + metadataFile.originalname + "'");
         let existing = ids.find((o) => o.hruid == metadata.hruid && o.language == metadata.language && o.version == metadata.version)
         let id;
+        let repos = new LearningObjectRepository();
+        let dbError = false;
         if (existing) {
             // hruid, language and version need to be uniqe => update existing object
             id = existing.id;
@@ -324,41 +322,54 @@ learningObjectController.createLearningObject = async (req, res) => {
             // Create learning object
             const learningObject = new LearningObject(metadata);
             id = learningObject['_id'].toString();
-        }
-        let destination = path.join(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION), id); // Use unique learning object id to define storage location
-        let resFiles;
-        let htmlString
-        if (metadataFile.originalname.includes("metadata.")) {
-            // If the metadata comes from a metadata.md or metadata.yaml file the correct content file needs to be processed
-            // This is how we get the html filename and html string.
-            // It also returns the nescessary files that need to be saved.
-            [htmlString, resFiles] = learningObjectController.processFiles(req.files, metadata.content_type, metadata);
 
-            resFiles.push(metadataFile);
-        } else {
-            // If a index.md file is used, all other files need to be stored aswell because they can be used in the markdown
-            htmlString = learningObjectController.processMarkdown(markdown, req.files, metadata.language);
-
-            resFiles = req.files;
-        }
-
-        // Write html file
-        learningObjectController.writeHtmlFile(destination, "index.html", htmlString);
-
-
-        // Save all source files
-        learningObjectController.saveSourceFiles(resFiles, destination);
-
-        if (existing) {
-            UserLogger.info("The learning-object with hruid '" + metadata.hruid + "' and id '" + id + "' was updated correctly");
-
-        } else {
-            UserLogger.info("The learning-object with hruid '" + metadata.hruid + "' was created correctly with id " + id);
+            await new Promise((resolve) => {
+                repos.save(learningObject, (err) => {
+                    if (err) {
+                        logger.error("The object with hruid '" + learningObject.hruid + "' could not be saved: " + err.message);
+                        UserLogger.error("The object with hruid '" + learningObject.hruid + "' could not be saved due to an error with the database or with the metadata.")
+                        dbError = true;
+                    }
+                    logger.info("The object with hruid '" + learningObject.hruid + "' has been saved correctly.");
+                    resolve();
+                })
+            });
 
         }
 
-        // TODO: Add id to metadata and save to database
+        if (!dbError) {
+            let destination = path.join(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION), id); // Use unique learning object id to define storage location
+            let resFiles;
+            let htmlString
+            if (metadataFile.originalname.includes("metadata.")) {
+                // If the metadata comes from a metadata.md or metadata.yaml file the correct content file needs to be processed
+                // This is how we get the html filename and html string.
+                // It also returns the nescessary files that need to be saved.
+                [htmlString, resFiles] = learningObjectController.processFiles(req.files, metadata.content_type, metadata);
 
+            } else {
+                // If a index.md file is used, all other files need to be stored aswell because they can be used in the markdown
+                htmlString = learningObjectController.processMarkdown(markdown, req.files, metadata.language);
+
+                resFiles = req.files.filter((f) => !f.originalname.match(/.*(index\.md|metadata\.(md|yaml))$/));
+            }
+
+            // Write html file
+            learningObjectController.writeHtmlFile(destination, "index.html", htmlString);
+
+
+            // Save all source files
+            learningObjectController.saveSourceFiles(resFiles, destination);
+
+            if (existing) {
+                UserLogger.info("The learning-object with hruid '" + metadata.hruid + "' and id '" + id + "' was updated correctly");
+
+            } else {
+                UserLogger.info("The learning-object with hruid '" + metadata.hruid + "' was created correctly with id " + id);
+
+            }
+
+        }
 
     } catch (error) {
         logger.error(error.message);

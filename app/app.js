@@ -6,7 +6,6 @@ import ltijs from "ltijs"
 import schedule from 'node-schedule'
 import { pullAndProcessRepository } from './utils/git.js'
 
-
 const logger = Logger.getLogger();
 const lti = ltijs.Provider;
 
