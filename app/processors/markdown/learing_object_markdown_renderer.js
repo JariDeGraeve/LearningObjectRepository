@@ -4,6 +4,11 @@ import ProcessingProxy from "../processing_proxy.js";
 import fs from "fs"
 import path from "path"
 import UserLogger from "../../utils/user_logger.js";
+import PdfProcessor from "../pdf/pdf_processor.js";
+import AudioProcessor from "../audio/audio_processor.js";
+import ExternProcessor from "../extern/extern_processor.js";
+import BlocklyProcessor from "../blockly/blockly_processor.js";
+import { findFile } from "../../utils/file_io.js";
 
 
 class LearningObjectMarkdownRenderer {
@@ -14,7 +19,7 @@ class LearningObjectMarkdownRenderer {
     notebookPrefix = '@notebook';
     blocklyPrefix = '@blockly';
 
-    constructor(args = { files: [], language: "en"}){
+    constructor(args = { files: [], language: "en" }) {
         this.args = args;
     }
 
@@ -47,38 +52,41 @@ class LearningObjectMarkdownRenderer {
     // When the syntax for an image is used => ![text](href "title")
     // render a learning object, pdf, audio or video if a prefix is used.
     image(href, title, text) {
-        let proc = new ProcessingProxy({files: this.args.files, language: this.args.language});
 
         if (href.startsWith(this.learingObjectPrefix)) {
-            let lproc = new LearningObjectProcessor();
-            return lproc.render(href.split(/\/(.+)/, 2)[1]);
+            let proc = new LearningObjectProcessor();
+            return proc.render(href.split(/\/(.+)/, 2)[1]);
 
         } else if (href.startsWith(this.pdfPrefix)) {
-            return proc.render(ProcessorContentType.APPLICATION_PDF, href.split(/\/(.+)/, 2)[1], { files: this.args.files });
+            let proc = new PdfProcessor();
+            return proc.render(href.split(/\/(.+)/, 2)[1], { files: this.args.files });
 
         } else if (href.startsWith(this.audioPrefix)) {
-            return proc.render(ProcessorContentType.AUDIO_MPEG, href.split(/\/(.+)/, 2)[1], { type: "audio/mpeg", files: this.args.files });
+            let proc = new AudioProcessor();
+            return proc.render(href.split(/\/(.+)/, 2)[1], { type: "audio/mpeg", files: this.args.files });
 
         } else if (href.startsWith(this.videoPrefix)) {
-            return proc.render(ProcessorContentType.EXTERN, href.split(/\/(.+)/, 2)[1]);
+            let proc = new ExternProcessor();
+            return proc.render(href.split(/\/(.+)/, 2)[1]);
 
         } else if (href.startsWith(this.notebookPrefix)) {
+            let proc = new ExternProcessor();
             let url = "https://nbviewer.jupyter.org/urls/" + (href.split(/\/(.+)/, 2)[1]).replace(/^https?:\/\//, '');
-            return proc.render(ProcessorContentType.EXTERN, url);
+            return proc.render(url);
 
         } else if (href.startsWith(this.blocklyPrefix)) {
-            if(this.args.files){
-                let file = this.args.files.find((f)  => {
-                    return f.originalname == href.split(/\/(.+)/, 2)[1];
-                });
-                if(file){
-                    return proc.render(ProcessorContentType.BLOCKLY, file.buffer, { language: this.args.language });
+            let proc = new BlocklyProcessor();
+            if (this.args.files) {
+                let file = findFile(href.split(/\/(.+)/, 2)[1], this.args.files)
+                if (file) {
+                    return proc.render(file.buffer, { language: this.args.language });
                 }
+
             }
             UserLogger.error("The blockly preview could not load. Are you sure the correct xml file was passed?")
             return "";
         } else {
-            
+
             return false; // Let marked process the link
         }
     };

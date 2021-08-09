@@ -329,7 +329,7 @@ class MetadataValidator {
 
         if (errors && errors.length > 0) {
             let title = "Metadata errors for the learning-object "
-                + (this.hruid && typeof this.hruid == "string" ? "with hruid " + this.hruid : "without a hruid");
+                + (this.hruid && typeof this.hruid == "string" ? "with hruid '" + this.hruid + "'" : "without a hruid");
             UserLogger.error(errors, title);
             return [this.metadata, false];
 

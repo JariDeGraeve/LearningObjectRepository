@@ -17,13 +17,12 @@ class AudioProcessor extends Processor {
      * @param {object} args Optional arguments specific to the render function of the AudioProcessor
      * @returns 
      */
-    render(audioUrl, args = { type: "audio/mpeg", files: []}) {
-        if(!args.files || args.files.length <= 0){
+    render(audioUrl, args = { type: "audio/mpeg", files: [] }) {
+        if (!args.files || args.files.length <= 0) {
             UserLogger.error("The audio file cannot be found. Please check if the filename is spelled correctly.")
             return "";
         }
-        let filenames = args.files.map((f) => f.originalname);
-        if(!filenames.includes(audioUrl.split("/").pop())){
+        if (!findFile(audioUrl, args.files)) {
             UserLogger.error("The audio file cannot be found. Please check if the filename is spelled correctly.")
             return "";
         }

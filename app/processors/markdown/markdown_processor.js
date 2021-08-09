@@ -6,6 +6,7 @@ import yaml from "js-yaml"
 import Logger from '../../logger.js';
 import Processor from '../processor.js';
 import InvalidArgumentError from "../../utils/invalid_argument_error.js"
+import UserLogger from '../../utils/user_logger.js';
 
 class MarkdownProcessor extends Processor {
     logger = Logger.getLogger();
@@ -59,7 +60,8 @@ class MarkdownProcessor extends Processor {
         try {
             metadata = yaml.load(metadataText);
         } catch (e) {
-            this.logger.error(`Unable to convert metadata to YAML: ${e}`);
+            Logger.getLogger().error(`Unable to convert metadata to YAML: ${e}`);
+            UserLogger.error(`There is an syntax-error in the metadata: ${e}`);
         }
         return {
             original: mdTextWithYAMLMeta,

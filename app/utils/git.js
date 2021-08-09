@@ -14,7 +14,8 @@ let logger = Logger.getLogger();
  * @param {string} branch - the branch in the remote repository (default is 'main')
  */
 let pullAndProcessRepository = async function (destination, branch = "main") {
-    let repository = "https://github.com/JariDeGraeve/learning-objects-test.git";//process.env.LEARNING_OBJECTS_GIT_REPOSITORY
+    let repository = "https://github.com/JariDeGraeve/learning-objects-test.git";
+    // let repository = process.env.LEARNING_OBJECTS_GIT_REPOSITORY
     // Pull Git repos
 
     // If destination doesn't exist, make it

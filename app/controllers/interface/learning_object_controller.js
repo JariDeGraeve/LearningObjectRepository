@@ -53,10 +53,10 @@ learningObjectController.findAllObjectHRUIDandIDs = () => {
     dirCont.forEach(id => {
         let files = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id));
         files = files
-        .filter((f)=> fs.lstatSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)).isFile())
-        .map((f) => {
-            return { originalname: f, buffer: fs.readFileSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)) };
-        });
+            .filter((f) => fs.lstatSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)).isFile())
+            .map((f) => {
+                return { originalname: f, buffer: fs.readFileSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)) };
+            });
         let [metadata] = learningObjectController.extractMetadata(files)
         let url = path.join("/api/learningObject/getContent/", id);
         res.push({ id: id, hruid: metadata.hruid, available: metadata.available, url: url });
@@ -114,7 +114,7 @@ learningObjectController.processFiles = (files, contentType, metadata = {}) => {
                 // Find image file
                 if (ext.match(/\.(jpe?g)|(png)|(svg)$/)) {
                     inputString = f["originalname"]
-                    args = metadata.args ? { width: metadata.args.width , height: metadata.args.height } : { }
+                    args = metadata.args ? { width: metadata.args.width, height: metadata.args.height } : {}
 
                     resFiles.push(f);
                     return true;
@@ -192,8 +192,8 @@ learningObjectController.processMarkdown = (md, files, language) => {
         let ignoreregex = /(.*index\.md)|(^\..*)$/;
         return !f["originalname"].match(ignoreregex);
     })
-    let proc = new MarkdownProcessor({files: filtered, language: language});
-    return proc.render(md);
+    let proc = new ProcessingProxy({ files: filtered, language: language })
+    return proc.render(ProcessorContentType.TEXT_MARKDOWN, md);
 };
 
 /**
@@ -230,11 +230,13 @@ learningObjectController.extractMetadata = (files) => {
                 try {
                     metadata = yaml.load(metadataText);
                 } catch (e) {
-                    this.logger.error(`Unable to convert metadata to YAML: ${e}`);
+                    logger.error(`Unable to convert metadata to YAML: ${e}`);
+                    UserLogger.error(`There is an syntax-error in the metadata: ${e}`);
                 }
                 return [metadata, metadatafile];
             }
         } else {
+            console.log(files);
             logger.error("There is no index.md, metadata.md or metadata.yaml file!")
         }
     }
@@ -271,9 +273,9 @@ learningObjectController.saveSourceFiles = (files, destination) => {
         let filename = path.join(destination, elem.originalname);
 
         mkdirp.sync(path.dirname(filename));
-        if(elem.isDir){
+        if (elem.isDir) {
             // save subdirectory
-            learningObjectController.saveSourceFiles(elem.sub, path.join(destination,  elem.originalname));
+            learningObjectController.saveSourceFiles(elem.sub, path.join(destination, elem.originalname));
         } else {
             fs.writeFileSync(filename, elem.buffer);
         }
