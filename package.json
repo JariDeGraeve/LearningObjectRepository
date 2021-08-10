@@ -18,6 +18,7 @@
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@fortawesome/fontawesome-free-brands": "^5.0.13",
     "@fortawesome/fontawesome-free-solid": "^5.0.13",
+    "ajv": "^8.6.2",
     "body-parser": "^1.19.0",
     "bootstrap": "^5.0.2",
     "cors": "^2.8.5",

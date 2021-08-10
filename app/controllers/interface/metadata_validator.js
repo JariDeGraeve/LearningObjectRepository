@@ -57,6 +57,10 @@ class MetadataValidator {
         },
 
         version() {
+            // required
+            if (this.version == undefined) {
+                return "- A parameter version is required.\n"
+            }
             // type Number
             if (this.version != undefined) {
                 if (typeof this.version != "number") {

@@ -1,0 +1,77 @@
+{
+    "$id": "https://dwengo.org/learning_track.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Schema for definition of learning track",
+    "type": "object",
+    "properties": {
+        "language": {
+            "title": "The language used in the learning track",
+            "type": "string"
+        },
+        "title": {
+            "title": "The title of the learning track",
+            "type": "string"
+        },
+        "description": {
+            "title": "The description of the learning track",
+            "type": "string"
+        },
+        "image": {
+            "title": "Base64 encoding of cover image",
+            "type": "string"
+        },
+        "nodes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "learningobject_id": {
+                        "type": "string"
+                    },
+                    "language": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "instruction": {
+                        "type": "string"
+                    },
+                    "start_node": {
+                        "type": "boolean"
+                    },
+                    "transitions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "condition": {
+                                    "type": "string"
+                                },
+                                "next": {
+                                    "type": "string"
+                                },
+                                "default": {
+                                    "type": "boolean"
+                                }
+                            },
+                            "required": [
+                                "next"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "learningobject_id",
+                    "language",
+                    "version"
+                ]
+            },
+            "minItems": 1
+        }
+    },
+    "required": [
+        "language",
+        "nodes"
+    ]
+}

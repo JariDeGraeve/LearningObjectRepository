@@ -17,7 +17,7 @@ const learningObjectSchema = new mongoose.Schema({
     },
     version: {
         type: Number,
-        //required: true,
+        required: true,
         trim: true
     },
     language: {
@@ -90,7 +90,7 @@ const learningObjectSchema = new mongoose.Schema({
 }, { timestamps: { createdAt: 'created_at' } });
 
 // Enforce unique index on combination of _id, version and language
-learningObjectSchema.index({ uuid: 1, version: 1, language: 1 }, { unique: true });
+learningObjectSchema.index({ hruid: 1, version: 1, language: 1 }, { unique: true });
 // Check if content location is correct URL
 // learningObjectSchema.path('content_location').validate((val) => {
 //     let urlRegex = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-]))?/;

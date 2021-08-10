@@ -1,5 +1,4 @@
 import mongoose from "mongoose"
-import InvalidArgumentError from "../utils/invalid_argument_error.js"
 import Logger from "../logger.js"
 import LearningObject from "../models/learning_object.js"
 

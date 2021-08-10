@@ -1,21 +1,42 @@
 import Logger from "../../logger.js"
 import path from "path"
 import LearningPathRepository from "../../repository/learning_path_repository.js";
+import JsonValidator from "../../utils/json_validator.js";
+import { readFileSync } from "fs";
+import LearningPath from "../../models/learning_path.js";
+import UserLogger from "../../utils/user_logger.js";
 
 let logger = Logger.getLogger()
 
 let learningPathApiController = {}
 
+learningPathApiController.saveLearningPath = (file) => {
+    let json = JSON.parse(file.buffer.toString());
+    let jsonValidator = new JsonValidator(JSON.parse(readFileSync(path.resolve("app", "controllers", "api", "learning_path_schema.json"))));
+    let valid = jsonValidator.validate(json);
+    if (valid) {
+
+        json.image = Buffer.from(json.image, 'base64');
+        let learningPath = LearningPath(json);
+        let repos = new LearningPathRepository();
+        repos.save(learningPath, (err) => {
+            if (err) {
+                logger.error("The learning-path with hruid '" + learningPath.hruid + "' could not be saved: " + err.message);
+                UserLogger.error("The learning-path with hruid '" + learningPath.hruid + "' could not be saved due to an error with the database or with the data.")
+            } else {
+                logger.info("The learning-path with hruid '" + learningPath.hruid + "' has been saved correctly.");
+            }
+        })
+    } else {
+        let errorString = "Errors while saving learning-path from file " + file.originalname + ": " + jsonValidator.getErrors().map((e) => e.message);
+        logger.error(errorString);
+    }
+}
+
 learningPathApiController.getLearningPaths = async (req, res) => {
     let query = req.query ? req.query : {};
     let repos = new LearningPathRepository();
     let loginfo = "Requested learning path with query: {";
-
-    for (const [key, value] of Object.entries(query)) {
-        query[key] = new RegExp(".*" + value + ".*");
-        loginfo += key + ": " + value + ","
-    }
-    logger.info(loginfo + "}")
 
     if (query.all) {
         query = {
@@ -25,7 +46,16 @@ learningPathApiController.getLearningPaths = async (req, res) => {
         }
     }
 
-    query = { $or: [query] }
+    let queryList = []
+    for (const [key, value] of Object.entries(query)) {
+        let obj = {};
+        obj[key] = new RegExp(".*" + value + ".*");
+        queryList.push(obj);
+        loginfo += key + ": " + value + ", "
+    }
+    logger.info(loginfo.slice(0, -2) + "}")
+
+    query = { $or: queryList }
 
     let paths;
     await new Promise((resolve) => {
@@ -37,8 +67,27 @@ learningPathApiController.getLearningPaths = async (req, res) => {
             resolve();
         })
     });
-    console.log(paths);
-    return res.send(paths);
+    if (paths) {
+        let resPaths = [];
+        // Yes, this is ugly, I'd rather do this with .map or just changing the image key in the path object, but it doesn't work and this was the only way out after all this time searching.
+        paths.forEach(p => {
+            resPaths.push({
+                _id: p._id,
+                hruid: p.hruid,
+                title: p.title,
+                description: p.description,
+                image: p.image.toString('base64'),
+                nodes: p.nodes,
+                uuid: p.uuid,
+                created_at: p.created_at,
+                updatedAt: p.updatedAt,
+                __v: p.__v
+            })
+        });
+        return res.send(resPaths);
+    }
+
+    return res.send("Could not retrieve learning paths from database.");
 };
 
 

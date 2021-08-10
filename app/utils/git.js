@@ -1,9 +1,9 @@
-import pkg from 'xmlhttprequest'
 import learningObjectController from '../controllers/interface/learning_object_controller.js'
 import fs from 'fs'
 import path from 'path'
 import simpleGit from 'simple-git';
 import Logger from '../logger.js';
+import learningPathApiController from '../controllers/api/learing_path_api_controller.js';
 
 let logger = Logger.getLogger();
 
@@ -69,9 +69,17 @@ let pullAndProcessRepository = async function (destination, branch = "main") {
         }
 
         //if (changes) {    // Comment for easier debugging
-        // Check directory recursively for learning-object root-directories
+        // Check directory recursively for learning-object root-directories + extract learning paths
         let checkDirRec = (dir) => {
             let dirCont = fs.readdirSync(dir);
+            if (dir.match(/.*learning.paths?.*/)) {
+                // Process learning paths
+                dirCont.forEach(f => {
+                    if (f.match(/.*\.json/) && fs.lstatSync(path.join(dir, f)).isFile()) {
+                        learningPathApiController.saveLearningPath({ originalname: f, buffer: fs.readFileSync(path.join(dir, f)) });
+                    }
+                });
+            }
             if (dirCont.some(f => /.*index.md|.*metadata.(md|yaml)/.test(f))) {
                 // Process directory if index or metadata file is present.
                 let files = dirCont.map((f) => {
