@@ -51,21 +51,23 @@ let pullAndProcessRepository = async function (destination, branch = "main") {
                 }
             });
 
+        // Process Files if there are changes in the directory
+
+
         // Get the files in the subdirectory (recursive)
         let getSubDirFiles = (subdir) => {
             let dirCont = fs.readdirSync(subdir);
             let res = [];
             dirCont.forEach(f => {
-                if(fs.lstatSync(path.join(subdir, f)).isDirectory()){
-                    res.push({ originalname: f, isDir: true, sub: getSubDirFiles(path.join(subdir, f))});
+                if (fs.lstatSync(path.join(subdir, f)).isDirectory()) {
+                    res.push({ originalname: f, isDir: true, sub: getSubDirFiles(path.join(subdir, f)) });
                 } else {
-                    res.push({ originalname: f, isDir: false, buffer: fs.readFileSync(path.join(subdir, f))});
+                    res.push({ originalname: f, isDir: false, buffer: fs.readFileSync(path.join(subdir, f)) });
                 }
             });
             return res;
         }
-        // Process Files if there are changes in the directory
-        
+
         //if (changes) {    // Comment for easier debugging
         // Check directory recursively for learning-object root-directories
         let checkDirRec = (dir) => {
@@ -73,9 +75,9 @@ let pullAndProcessRepository = async function (destination, branch = "main") {
             if (dirCont.some(f => /.*index.md|.*metadata.(md|yaml)/.test(f))) {
                 // Process directory if index or metadata file is present.
                 let files = dirCont.map((f) => {
-                    if(fs.lstatSync(path.join(dir, f)).isDirectory()){
+                    if (fs.lstatSync(path.join(dir, f)).isDirectory()) {
                         let subfiles = getSubDirFiles(path.join(dir, f))
-                        return { originalname: f, isDir: true, sub: subfiles};
+                        return { originalname: f, isDir: true, sub: subfiles };
                     } else {
                         return { originalname: f, isDir: false, buffer: fs.readFileSync(path.join(dir, f)) };
                     }

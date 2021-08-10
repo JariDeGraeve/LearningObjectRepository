@@ -48,31 +48,8 @@ learningObjectController.getAllLearningObjects = async (req, res) => {
  * @returns array of objects with id, hruid and url to learning object. It also contains a boolean to check if object is available
  */
 learningObjectController.findAllObjects = async () => {
-    // let res = []
-    // let dirCont = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION));
-
-    // dirCont = dirCont.filter((file) => {
-    //     return file.charAt(0) != "."
-    // });
-
-    // dirCont.forEach(id => {
-    //     let files = fs.readdirSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id));
-    //     files = files
-    //         .filter((f) => fs.lstatSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)).isFile())
-    //         .map((f) => {
-    //             return { originalname: f, buffer: fs.readFileSync(path.resolve(process.env.LEARNING_OBJECT_STORAGE_LOCATION, id, f)) };
-    //         });
-    //     let [metadata] = learningObjectController.extractMetadata(files)
-    //     let url = path.join("/api/learningObject/getContent/", id);
-    //     res.push({ id: id, hruid: metadata.hruid, language: metadata.language, version: metadata.version, available: metadata.available, url: url });
-    // });
-    // return res;
     let repos = new LearningObjectRepository();
     let objects;
-    // repos.findAll((err, res) => {
-    //     objects = res;
-    //     //console.log(res)
-    // });
     await new Promise((resolve) => {
         repos.findAll((err, res) => {
             if (err) {

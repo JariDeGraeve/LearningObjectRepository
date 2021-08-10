@@ -21,12 +21,11 @@ class LearningObjectRepository {
                 resolve();
             })
         });
-        // TODO blijkbaar lukt dit niet..
         obj.save(callback)
     }
 
     findAll(callback = (err) => { console.log(err) }) {
-        return LearningObject.find({}, callback);
+        LearningObject.find({}, callback);
     }
 }
 
