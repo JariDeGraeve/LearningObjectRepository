@@ -84,7 +84,13 @@ const learningObjectSchema = new mongoose.Schema({
     estimated_time: {
         type: Number,
         required: true
-    }
+    },
+    skos_concepts: [
+        {
+            type: String,
+            required: true
+        }
+    ]
 
 
 }, { timestamps: { createdAt: 'created_at' } });
@@ -94,8 +100,17 @@ learningObjectSchema.index({ hruid: 1, version: 1, language: 1 }, { unique: true
 // Check if content location is correct URL
 // learningObjectSchema.path('content_location').validate((val) => {
 //     let urlRegex = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-]))?/;
-//     return urlRegex.test(val); q
+//     return urlRegex.test(val); 
 // });
+
+learningObjectSchema.path('skos_concepts').validate((val) => {
+    let valid = true;
+    val.forEach(elem => {
+        if (!/https?:\/\/ilearn\.ilabt\.imec\.be\/[\w#!:.?+=&%@!\-\/]*/.test(elem))
+            valid = false;
+    });
+    return valid;
+});
 
 // Check if language exists
 /*learningObjectSchema.path('language').validate((val) => {

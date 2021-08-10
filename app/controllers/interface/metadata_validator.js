@@ -26,6 +26,7 @@ class MetadataValidator {
         this.return_value = _metadata.return_value;
         this.content_location = _metadata.content_location;
         this.estimated_time = _metadata.estimated_time;
+        this.skos_concepts = _metadata.skos_concepts;
     }
 
     validators = {
@@ -308,8 +309,33 @@ class MetadataValidator {
             if (typeof this.estimated_time != "number") {
                 return "- The estimated_time parameter needs to be of type number.\n";
             }
+        },
+
+        skos_concepts() {
+            if (this.skos_concepts != undefined) {
+                // type array
+                if (!Array.isArray(this.skos_concepts)) {
+                    return "- The skos_concepts parameter needs to be an array of strings.\n";
+                }
+                // elements are type string and correct url (http://ilearn.ilabt.imec.be/<concept>)
+                let err = "";
+                for (let i = 0; i < this.skos_concepts.length; i++) {
+                    if (typeof this.skos_concepts[i] != "string") {
+                        err += "\t* '" + this.skos_concepts[i] + "' is not of type string.\n";
+                    } else if (!/https?:\/\/ilearn\.ilabt\.imec\.be\/[\w#!:.?+=&%@!\-\/]*/.test(this.skos_concepts[i])) {
+                        err += "\t* '" + this.skos_concepts[i] + "' is not a correct url.\n";
+                    }
+                }
+                if (err.length != 0) {
+                    err = "- The keywords parameter needs to be an array of correct urls (starting with http://ilearn.ilabt.imec.be/): \n" + err;
+                    return err;
+                }
+            } else {
+                return "- A parameter skos_concepts is required.\n";
+            }
         }
     }
+
 
     /**
      * Validates the metadata

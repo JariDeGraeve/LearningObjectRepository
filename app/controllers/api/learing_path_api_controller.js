@@ -25,6 +25,7 @@ learningPathApiController.saveLearningPath = (file) => {
                 UserLogger.error("The learning-path with hruid '" + learningPath.hruid + "' could not be saved due to an error with the database or with the data.")
             } else {
                 logger.info("The learning-path with hruid '" + learningPath.hruid + "' has been saved correctly.");
+                UserLogger.info("The learning-path with hruid '" + learningPath.hruid + "' has been saved correctly.");
             }
         })
     } else {
