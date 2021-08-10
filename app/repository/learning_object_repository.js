@@ -10,8 +10,17 @@ class LearningObjectRepository {
         obj.save(callback)
     }
 
-    update(id, callback = (err) => { console.log(err) }) {
-        let obj = LearningObject.findById(id);
+    async update(id, callback = (err) => { console.log(err) }) {
+        let obj;
+        await new Promise((resolve) => {
+            LearningObject.findById(id, (err, res) => {
+                if (err) {
+                    logger.error("The object with id '" + id + "' could not be found: " + err.message);
+                }
+                obj = res;
+                resolve();
+            })
+        });
         // TODO blijkbaar lukt dit niet..
         obj.save(callback)
     }

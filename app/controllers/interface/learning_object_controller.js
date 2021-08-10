@@ -83,10 +83,7 @@ learningObjectController.findAllObjects = async () => {
         })
     });
 
-    let d = objects.map((obj) => { return { id: obj._id.toString(), hruid: obj.hruid, language: obj.language, version: obj.version, available: obj.available, url: path.join("/api/learningObject/getContent/", obj._id.toString()) } });
-    console.log(d);
-    return (d)
-
+    return objects.map((obj) => { return { id: obj._id.toString(), hruid: obj.hruid, language: obj.language, version: obj.version, available: obj.available, url: path.join("/api/learningObject/getContent/", obj._id.toString()) } });
 }
 
 learningObjectController.findMarkdownIndex = (files) => {
@@ -261,7 +258,6 @@ learningObjectController.extractMetadata = (files) => {
                 return [metadata, metadatafile];
             }
         } else {
-            console.log(files);
             logger.error("There is no index.md, metadata.md or metadata.yaml file!")
         }
     }
@@ -319,8 +315,6 @@ learningObjectController.createLearningObject = async (req, res) => {
 
         // Validate metadata
         let ids = await learningObjectController.findAllObjects();
-        console.log("-----------2--------------")
-        console.log(ids);
         let val = new MetadataValidator(metadata, ids);
 
         let valid;
@@ -335,8 +329,6 @@ learningObjectController.createLearningObject = async (req, res) => {
         let id;
         let repos = new LearningObjectRepository();
         let dbError = false;
-        console.log(existing)
-        console.log(metadata);
 
         if (existing) {
             // hruid, language and version need to be uniqe => update existing object
@@ -347,11 +339,11 @@ learningObjectController.createLearningObject = async (req, res) => {
             await new Promise((resolve) => {
                 repos.update(id, (err) => {
                     if (err) {
-                        logger.error("The object with hruid '" + learningObject.hruid + "' could not be updated: " + err.message);
-                        UserLogger.error("The object with hruid '" + learningObject.hruid + "' could not be updated due to an error with the database or with the metadata.")
+                        logger.error("The object with hruid '" + metadata.hruid + "' could not be updated: " + err.message);
+                        UserLogger.error("The object with hruid '" + metadata.hruid + "' could not be updated due to an error with the database or with the metadata.")
                         dbError = true;
                     }
-                    logger.info("The metadata for the object with hruid '" + learningObject.hruid + "' has been updated correctly.");
+                    logger.info("The metadata for the object with hruid '" + metadata.hruid + "' has been updated correctly.");
                     resolve();
                 })
             });
