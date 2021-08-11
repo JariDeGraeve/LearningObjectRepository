@@ -5,6 +5,8 @@ import appRouter from './routes/app_router.js'
 import ltijs from "ltijs"
 import schedule from 'node-schedule'
 import { pullAndProcessRepository } from './utils/git.js'
+import cors from "cors";
+
 
 const logger = Logger.getLogger();
 const lti = ltijs.Provider;
@@ -59,6 +61,8 @@ logger.info(`Running from directory: ${path.resolve(process.cwd())}`)
 logger.info(`Running in ${process.env.NODE_ENV} environment`)
 
 const app = express();
+app.use(cors())
+
 
 // use lti middleware
 app.use('/lti', lti.app);

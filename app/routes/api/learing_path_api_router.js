@@ -6,4 +6,8 @@ learningPathApiRouter.route("/search").get((req, res) => {
     learningPathApiController.getLearningPaths(req, res);
 });
 
+learningPathApiRouter.route("/:id").get((req, res) => {
+    learningPathApiController.getLearningPathFromId(req, res);
+});
+
 export default learningPathApiRouter;

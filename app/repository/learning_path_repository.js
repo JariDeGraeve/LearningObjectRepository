@@ -9,6 +9,10 @@ class LearningPathRepository {
     find(query, callback = (err) => { console.log(err) }) {
         LearningPath.find(query, callback);
     }
+
+    findById(id, callback = (err) => { console.log(err) }) {
+        LearningPath.findById(id, callback);
+    }
 }
 
 export default LearningPathRepository

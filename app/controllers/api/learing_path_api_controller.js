@@ -34,6 +34,40 @@ learningPathApiController.saveLearningPath = (file) => {
     }
 }
 
+learningPathApiController.getLearningPathFromId = async (req, res) => {
+    let path;
+    let repos = new LearningPathRepository();
+
+    await new Promise((resolve) => {
+        repos.findById(req.params.id, (err, res) => {
+            if (err) {
+                logger.error("Could not retrieve learning path from database: " + err.message);
+            }
+            path = res;
+            resolve();
+        })
+    });
+    if (path) {
+        let resPath = {};
+        // Yes, this is ugly, I'd rather do this with .map or just changing the image key in the path object, but it doesn't work and this was the only way out after all this time searching.
+        resPath = {
+            _id: path._id,
+            hruid: path.hruid,
+            title: path.title,
+            description: path.description,
+            image: path.image.toString('base64'),
+            nodes: path.nodes,
+            uuid: path.uuid,
+            created_at: path.created_at,
+            updatedAt: path.updatedAt,
+            __v: path.__v
+        }
+        return res.json(resPath);
+    }
+    return res.send("Could not retrieve learning path from database.");
+
+}
+
 learningPathApiController.getLearningPaths = async (req, res) => {
     let query = req.query ? req.query : {};
     let repos = new LearningPathRepository();
@@ -85,7 +119,7 @@ learningPathApiController.getLearningPaths = async (req, res) => {
                 __v: p.__v
             })
         });
-        return res.send(resPaths);
+        return res.json(resPaths);
     }
 
     return res.send("Could not retrieve learning paths from database.");
