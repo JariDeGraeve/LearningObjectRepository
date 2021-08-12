@@ -34,7 +34,7 @@ const learningPathNodeSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    startNode: {
+    start_node: {
         type: Boolean
     },
     transitions: {

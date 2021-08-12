@@ -17,7 +17,7 @@ class BlocklyProcessor extends Processor {
      * @param {object} args Optional arguments specific to the render function of the BlocklyProcessor
      * @returns 
      */
-    render(blocklyXml, args = {language: "en"}) {
+    render(blocklyXml, args = { language: "en" }) {
         if (!args.language || args.language == "") {
             args.language = "en";
         }

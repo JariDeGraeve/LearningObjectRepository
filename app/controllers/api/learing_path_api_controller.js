@@ -37,7 +37,7 @@ learningPathApiController.saveLearningPath = (file) => {
 learningPathApiController.getLearningPathFromId = async (req, res) => {
     let path;
     let repos = new LearningPathRepository();
-
+    logger.info("Requested learning path with id: " + req.params.id);
     await new Promise((resolve) => {
         repos.findById(req.params.id, (err, res) => {
             if (err) {
